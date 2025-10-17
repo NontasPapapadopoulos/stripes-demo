@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
-import net.stripesapp.mlsretailsoftware.data.scannerdevice.FingerScanner
 import jp.casio.ht.devicelibrary.ScannerLibrary.CONSTANT.OUTPUT.USER
 
 

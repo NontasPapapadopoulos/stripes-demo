@@ -1,11 +1,9 @@
-package com.example.stripesdemo.presentation.ui
+package com.example.stripesdemo.presentation.ui.icons
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.example.stripesdemo.presentation.ui.icons.StripesIcons
-import net.stripesapp.mlsretailsoftware.presentation.ui.theme.StripesIcons
 
 public val StripesIcons.Barcode: ImageVector
     get() {

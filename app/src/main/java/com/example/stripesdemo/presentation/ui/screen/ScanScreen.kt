@@ -31,10 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.stripesdemo.presentation.ui.Barcode
-import com.example.stripesdemo.presentation.ui.LoadingBox
+import com.example.stripesdemo.presentation.ui.icons.Barcode
+import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
-import net.stripesapp.mlsretailsoftware.presentation.exception.errorStringResource
+import com.example.stripesdemo.presentation.exception.errorStringResource
 
 
 @Composable
@@ -166,6 +166,7 @@ private fun ScanScreenPreview() {
             barcode = "12312312321",
             count = 1,
             isSubmitEnabled = true,
+            dialog = null
 
         ),
         onNavigateToScanList = {},

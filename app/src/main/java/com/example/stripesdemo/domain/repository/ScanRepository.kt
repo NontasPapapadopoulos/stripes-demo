@@ -13,12 +13,14 @@ interface ScanRepository {
 
     suspend fun getScan(id: String): ScanDomainEntity
 
-    fun getOpenScanFlow(sessionId: String): Flow<ScanDomainEntity>
+    fun getOpenScanFlow(): Flow<ScanDomainEntity>
 
     suspend fun save(scan: ScanDomainEntity)
+    suspend fun saveAndSubmit(scan: ScanDomainEntity)
 
-    fun getScans(sessionId: String): Flow<List<ScanDomainEntity>>
+    fun getScans(): Flow<List<ScanDomainEntity>>
 
-    suspend fun deleteOpenScan(sessionId: String)
+    suspend fun deleteOpenScan()
+    suspend fun getNumberOfScans(): Int
 
 }

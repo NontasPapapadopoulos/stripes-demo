@@ -37,6 +37,6 @@ interface ScanDao {
     suspend fun delete(id: String)
 
     @Query("delete from scan where submitted = 0")
-    suspend fun deleteOpenScan(sessionId: String)
+    suspend fun deleteOpenScan()
 
 }

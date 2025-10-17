@@ -1,8 +1,8 @@
-package net.stripesapp.mlsretailsoftware.domain.interactor.scanner.finger
+package com.example.stripesdemo.domain.interactor.scanner.finger
 
+import com.example.stripesdemo.domain.IoDispatcher
+import com.example.stripesdemo.domain.interactor.SuspendUseCase
 import kotlinx.coroutines.CoroutineDispatcher
-import net.stripesapp.mlsretailsoftware.domain.executor.IoDispatcher
-import net.stripesapp.mlsretailsoftware.domain.interactor.SuspendUseCase
 import com.example.stripesdemo.domain.repository.ScannerRepository
 import javax.inject.Inject
 

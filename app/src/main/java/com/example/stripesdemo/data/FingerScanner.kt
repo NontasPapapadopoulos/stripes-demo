@@ -1,12 +1,11 @@
-package net.stripesapp.mlsretailsoftware.data.scannerdevice
+package com.example.stripesdemo.data
 
 import android.content.Context
+import com.example.stripesdemo.domain.entity.enums.SensorFeedback
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import net.stripesapp.mlsretailsoftware.data.scannerdevice.casio.broadcastReceiverFlow
-import net.stripesapp.mlsretailsoftware.domain.entity.enums.SensorFeedback
 import javax.inject.Inject
 
 const val OPTICON_BROADCAST_ACTION = "com.opticon.decode.wedge.action"

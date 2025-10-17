@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
-import net.stripesapp.mlsretailsoftware.data.scannerdevice.FingerScanner
-
 
 
 class MobileScannerInterface(

@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.stripesdemo"
+    namespace = "com.example.presentation"
     compileSdk = 36
 
     defaultConfig {
@@ -59,6 +59,10 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    // mateiral 3
+    implementation(libs.material3)
+    implementation(libs.compose.material.icons)
+
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -77,6 +81,7 @@ dependencies {
 
     // Mobile Scan
     implementation(libs.codescanner)
+    implementation(libs.gpsCoroutines)
 
     // Database (Room)
     implementation(libs.androidx.room.runtime)
@@ -85,4 +90,10 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
     testImplementation(libs.androidx.room.testing)
 
+    // Gson
+    implementation(libs.gson)
+
+    // Qr code
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.javase)
 }

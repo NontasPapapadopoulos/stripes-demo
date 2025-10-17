@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data.entity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.stripesdemo.domain.entity.enums.ScanSource
 import java.time.LocalDateTime
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime
     tableName = "scan"
 )
 data class ScanDataEntity(
+    @PrimaryKey
     val id: String,
     val dateScanned: LocalDateTime,
     val dateModified: LocalDateTime?,

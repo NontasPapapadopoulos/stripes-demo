@@ -12,10 +12,7 @@ import javax.inject.Inject
 
 interface ScanDataSource {
     suspend fun initOpenScan()
-    suspend fun resetOpenScan(
-        properties: Map<String, String>,
-        defaultProperties: Map<String, String>,
-    ): ScanDataEntity
+    suspend fun resetOpenScan(): ScanDataEntity
 
     suspend fun getOpenScan(): ScanDataEntity?
     suspend fun getScan(id: String): ScanDataEntity
@@ -23,14 +20,13 @@ interface ScanDataSource {
 
     suspend fun saveAndSubmit(
         openScan: ScanDataEntity,
-        nextScanProperties: Map<String, String>,
     )
 
     suspend fun save(scan: ScanDataEntity)
     suspend fun save(scans: List<ScanDataEntity>)
     fun getScans(): Flow<List<ScanDataEntity>>
     suspend fun getNumberOfScans(): Int
-    suspend fun deleteOpenScan(sessionId: String)
+    suspend fun deleteOpenScan()
 
 }
 
@@ -45,11 +41,8 @@ class ScanDatabaseDataSource @Inject constructor(
     }
 
     override suspend fun resetOpenScan(
-        properties: Map<String, String>,
-        defaultProperties: Map<String, String>,
     ): ScanDataEntity {
         val openScan = scanDao.getOpenScan()
-            ?.copy(properties = properties, scanSource = null)
             ?: throw OpenScanNotInitialized()
         scanDao.put(openScan)
         return openScan
@@ -65,7 +58,6 @@ class ScanDatabaseDataSource @Inject constructor(
 
     override suspend fun saveAndSubmit(
         openScan: ScanDataEntity,
-        nextScanProperties: Map<String, String>,
     ) {
         scanDao.put(
             listOf(
@@ -100,8 +92,8 @@ class ScanDatabaseDataSource @Inject constructor(
         return scanDao.getNumberOfScans()
     }
 
-    override suspend fun deleteOpenScan(sessionId: String) {
-        scanDao.deleteOpenScan(sessionId)
+    override suspend fun deleteOpenScan() {
+        scanDao.deleteOpenScan()
     }
 
 

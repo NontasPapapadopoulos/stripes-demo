@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">StripesDemo</string>
+    <string name="finger_scanner">Finger Scanner</string>
+    <string name="finger_scanner_paired">Finger Scanner Paired</string>
+    <string name="no_finger_scanner_paired">No Finger Scanner Paired</string>
+    <string name="volume">Volume</string>
+    <string name="pair_new_finger_scanner">Pair New Finger Scanner</string>
+    <string name="setup_finger_scanner">Setup your Finger Scanner</string>
+    <string name="press_the_button_to_setup">Press the button to begin the setup process</string>
+    <string name="start_setup">Start Setup</string>
+    <string name="confugure_scanner">Configure scanner</string>
+    <string name="complete_connection">Complete Connection</string>
+    <string name="settings_qr_code">Settings QR Code</string>
+    <string name="connection_qr_code">Connection QR Code</string>
+    <string name="scan_for_settings">Scan the QR code with your finger scanner to apply the necessary settings.</string>
+    <string name="scan_for_connection">Scan the final QR code with your finger scanner to establish a connection.</string>
+    <string name="connection_successful">Connection Successful</string>
+    <string name="connection_failed">Connection Failed</string>
+    <string name="complete">Complete</string>
+    <string name="finger_scanner_ready_to_use">Your finger scanner is now connected and ready to use.</string>
+    <string name="connection_couldnt_complete">Connection could`nt complete with your finger scanner. Please try again.</string>
+    <string name="awaiting_qr_code">Awaiting QR Code Scan...</string>
+    <string name="connecting">Connecting...</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
 </resources>
