@@ -1,5 +1,6 @@
 package com.example.stripesdemo.presentation.feedback
 
+import com.example.presentation.R
 import com.example.stripesdemo.domain.entity.enums.SensorFeedback
 
 
