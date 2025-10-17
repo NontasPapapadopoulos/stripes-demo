@@ -25,9 +25,6 @@ open class GetConnectionQrCode @Inject constructor(
             scannerRepository.getQrCodeFromOpticon()
 
         }
-
-
-
     }
 
     private fun generateConnectionCode() =
