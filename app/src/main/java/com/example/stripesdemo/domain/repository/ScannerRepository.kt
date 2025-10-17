@@ -22,16 +22,14 @@ interface ScannerRepository {
 
     fun getQrCodeFromOpticon(): Flow<String>
 
-//    suspend fun setConnectionCode(id: String)
-//
-//    suspend fun getConnectionCode(): String
 
     fun getConnectionState(): Flow<ConnectionStateDomainEntity>
-//
+
     fun getConnectedDevices(): Flow<List<DeviceDomainEntity>>
 
     suspend fun performMobileScan()
 
     fun getScanSource(): ScanSource
 
+    suspend fun setConnectionCode(id: String)
 }

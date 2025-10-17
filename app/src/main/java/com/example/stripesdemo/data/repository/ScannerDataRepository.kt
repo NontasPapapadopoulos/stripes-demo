@@ -72,6 +72,9 @@ class ScannerDataRepository @Inject constructor(
         return connectionManager.getConnectionCode()
     }
 
+    override suspend fun setConnectionCode(id: String) {
+        connectionManager.setConnectionCode(id)
+    }
 
     override fun getConnectionState(): Flow<ConnectionStateDomainEntity> {
         return connectionManager.getConnectionState()
