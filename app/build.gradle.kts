@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinSerialization)
+
 }
 
 android {
@@ -62,14 +64,17 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // mateiral 3
+    implementation(libs.appcompat)
+
+
+    // material 3
     implementation(libs.material3)
     implementation(libs.compose.material.icons)
 
 
     // Navigation
-    implementation(libs.androidx.navigation.compose)
-
+    implementation(libs.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -99,4 +104,11 @@ dependencies {
     // Qr code
     implementation(libs.zxing.core)
     implementation(libs.zxing.javase)
+
+    // Serialization
+    implementation(libs.serialization)
+
+    // lifecycle
+    implementation(libs.lifecycle.process)
+
 }

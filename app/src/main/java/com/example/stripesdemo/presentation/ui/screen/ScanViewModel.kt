@@ -17,11 +17,13 @@ import kotlinx.coroutines.flow.stateIn
 import com.example.stripesdemo.domain.interactor.scanner.GetScannerInput
 import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.getOrThrow
 
+@HiltViewModel
 class ScanViewModel @Inject constructor(
     getOpenScanFlow: GetOpenScanFlow,
     getScannerInput: GetScannerInput,

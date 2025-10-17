@@ -124,9 +124,9 @@ fun Context.broadcastReceiverFlow(
     }
 
     if (broadcastPermission == null) {
-        registerReceiver(receiver, IntentFilter(action))
+        registerReceiver(receiver, IntentFilter(action), Context.RECEIVER_NOT_EXPORTED )
     } else {
-        registerReceiver(receiver, IntentFilter(action), broadcastPermission, null)
+        registerReceiver(receiver, IntentFilter(action), broadcastPermission, null, Context.RECEIVER_NOT_EXPORTED)
     }
 
     awaitClose { unregisterReceiver(receiver) }
