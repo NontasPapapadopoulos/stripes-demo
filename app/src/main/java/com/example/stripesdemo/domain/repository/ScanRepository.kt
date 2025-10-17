@@ -6,9 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface ScanRepository {
 
     suspend fun initOpenScan()
-
-    suspend fun resetOpenScan():ScanDomainEntity
-
     suspend fun getOpenScan(): ScanDomainEntity?
 
     suspend fun getScan(id: String): ScanDomainEntity
@@ -20,7 +17,7 @@ interface ScanRepository {
 
     fun getScans(): Flow<List<ScanDomainEntity>>
 
-    suspend fun deleteOpenScan()
-    suspend fun getNumberOfScans(): Int
+    fun getNumberOfScans(): Flow<Int>
+    suspend fun deleteScan(scan: ScanDomainEntity)
 
 }

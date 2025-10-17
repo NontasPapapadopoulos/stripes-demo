@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -13,7 +14,7 @@ interface ScanDao {
     fun get(): Flow<List<ScanDataEntity>>
 
     @Query("SELECT COUNT(id) FROM scan where submitted = 1")
-    suspend fun getNumberOfScans(): Int
+    fun getNumberOfScans(): Flow<Int>
 
     @Query("SELECT * FROM scan where submitted = 0 LIMIT 1")
     fun getOpenScanFlow(): Flow<ScanDataEntity?>
@@ -36,7 +37,7 @@ interface ScanDao {
     @Query("delete from scan where id = :id")
     suspend fun delete(id: String)
 
-    @Query("delete from scan where submitted = 0")
-    suspend fun deleteOpenScan()
+    @Delete
+    suspend fun deleteScan(scan: ScanDataEntity)
 
 }

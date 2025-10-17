@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 
-open class GetOpenScanFlow @Inject constructor(
+open class GetScans @Inject constructor(
     private val scanRepository: ScanRepository,
     @IoDispatcher private val flowDispatcher: CoroutineDispatcher,
-) : FlowUseCase<ScanDomainEntity, Unit>(flowDispatcher) {
+) : FlowUseCase<List<ScanDomainEntity>, Unit>(flowDispatcher) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun invoke(params: Unit): Flow<ScanDomainEntity> {
-        return scanRepository.getOpenScanFlow()
+    override fun invoke(params: Unit): Flow<List<ScanDomainEntity>> {
+        return scanRepository.getScans()
     }
 
 }

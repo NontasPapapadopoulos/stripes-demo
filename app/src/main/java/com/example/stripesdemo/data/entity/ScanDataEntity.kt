@@ -11,9 +11,9 @@ import java.time.LocalDateTime
 data class ScanDataEntity(
     @PrimaryKey
     val id: String,
+    val barcode: String,
+    val count: String,
     val dateScanned: LocalDateTime,
-    val dateModified: LocalDateTime?,
-    val properties: Map<String, String>,
     val submitted: Boolean,
     val scanSource: ScanSource?
 )

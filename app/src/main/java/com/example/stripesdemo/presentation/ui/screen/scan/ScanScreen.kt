@@ -1,4 +1,4 @@
-package com.example.stripesdemo.presentation.ui.screen
+package com.example.stripesdemo.presentation.ui.screen.scan
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -13,10 +13,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -61,7 +63,10 @@ fun ScanScreen(
             ScanContent(
                 state = state,
                 onNavigateToScanList = navigateToScanList,
-                triggerCameraScan = { viewModel.add(ScanEvent.TriggerCameraScan) }
+                triggerCameraScan = { viewModel.add(ScanEvent.TriggerCameraScan) },
+                onCountChanged = { viewModel.add(ScanEvent.CountChanged(it)) },
+                onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
+                submitScan = { viewModel.add(ScanEvent.SubmitScan) }
             )
         }
         ScanState.Idle -> {
@@ -78,6 +83,9 @@ private fun ScanContent(
     state: ScanState.Content,
     onNavigateToScanList: () -> Unit,
     triggerCameraScan: () -> Unit,
+    submitScan: () -> Unit,
+    onBarcodeChanged: (String) -> Unit,
+    onCountChanged: (String) -> Unit,
 ) {
 
     Scaffold(
@@ -94,32 +102,11 @@ private fun ScanContent(
             )
         },
         floatingActionButton = {
-
-            Box(
-                modifier = Modifier.fillMaxWidth(),
+            FloatingActionButton(
+                onClick = triggerCameraScan,
             ) {
 
-                FloatingActionButton(
-                    onClick = triggerCameraScan,
-                    modifier = Modifier.align(Alignment.Center)
-                ) {
-
-                    Icon(StripesIcons.Barcode,null)
-                }
-
-
-                FloatingActionButton(
-                    onClick = {}, // advance flow
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp)
-                ) {
-
-                    if (state.isSubmitEnabled)
-                        Icon(Icons.Filled.Check, null)
-                    else
-                        Icon(Icons.Filled.ArrowForward, null)
-                }
+                Icon(StripesIcons.Barcode,null)
             }
         }
     ) {
@@ -127,15 +114,14 @@ private fun ScanContent(
             modifier = Modifier.fillMaxSize()
                 .padding(it)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
 
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = state.barcode,
+                onValueChange = onBarcodeChanged,
                 label = {
                     Text(text = "Barcode")
                 },
@@ -145,12 +131,28 @@ private fun ScanContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = state.count,
+                onValueChange = { onCountChanged(it) },
                 label = {
                     Text(text = "Count")
                 },
                 modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = submitScan,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Submit Scan")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Total Scans: ${state.numberOfScans}",
+                style = MaterialTheme.typography.titleSmall
             )
 
         }
@@ -164,12 +166,16 @@ private fun ScanScreenPreview() {
     ScanContent(
         state = ScanState.Content(
             barcode = "12312312321",
-            count = 1,
+            count = "1",
             isSubmitEnabled = true,
-            dialog = null
+            dialog = null,
+            numberOfScans = 3
 
         ),
         onNavigateToScanList = {},
-        triggerCameraScan = {}
+        triggerCameraScan = {},
+        onCountChanged = {},
+        onBarcodeChanged = {},
+        submitScan = {}
     )
 }

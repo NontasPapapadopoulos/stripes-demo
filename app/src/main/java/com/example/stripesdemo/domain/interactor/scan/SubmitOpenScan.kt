@@ -17,7 +17,6 @@ open class SubmitOpenScan @Inject constructor(
 
         openScan?.let {
             val scan = it.copy(
-                properties = openScan.properties
             )
 //            scanRepository.saveAndSubmit(scan)
         }

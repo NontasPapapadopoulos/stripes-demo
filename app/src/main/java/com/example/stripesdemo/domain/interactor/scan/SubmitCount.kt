@@ -1,0 +1,36 @@
+package com.example.stripesdemo.domain.interactor.scan
+
+import com.example.stripesdemo.domain.IoDispatcher
+import com.example.stripesdemo.domain.entity.ScanDomainEntity
+import com.example.stripesdemo.domain.entity.enums.SensorFeedback
+import com.example.stripesdemo.domain.interactor.SuspendUseCase
+import com.example.stripesdemo.domain.repository.ScanRepository
+import com.example.stripesdemo.domain.repository.ScannerRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import javax.inject.Inject
+
+
+open class SubmitCount @Inject constructor(
+    private val scanRepository: ScanRepository,
+    private val scannerRepository: ScannerRepository,
+    @IoDispatcher dispatcher: CoroutineDispatcher
+) : SuspendUseCase<ScanDomainEntity?, SubmitCount.Params>(dispatcher) {
+
+    override suspend fun invoke(params: Params): ScanDomainEntity? {
+        val openScan = scanRepository.getOpenScan()
+
+        return openScan?.let {
+            val updated = openScan.copy(
+                barcode =  params.count,
+            )
+            scanRepository.save(updated)
+            scannerRepository.sendFeedback(SensorFeedback.SUCCESS)
+            updated
+        }
+    }
+
+    data class Params(
+        val count: String
+    )
+}
+

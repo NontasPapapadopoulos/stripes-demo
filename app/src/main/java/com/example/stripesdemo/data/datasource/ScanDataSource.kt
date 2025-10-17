@@ -12,7 +12,6 @@ import javax.inject.Inject
 
 interface ScanDataSource {
     suspend fun initOpenScan()
-    suspend fun resetOpenScan(): ScanDataEntity
 
     suspend fun getOpenScan(): ScanDataEntity?
     suspend fun getScan(id: String): ScanDataEntity
@@ -25,8 +24,8 @@ interface ScanDataSource {
     suspend fun save(scan: ScanDataEntity)
     suspend fun save(scans: List<ScanDataEntity>)
     fun getScans(): Flow<List<ScanDataEntity>>
-    suspend fun getNumberOfScans(): Int
-    suspend fun deleteOpenScan()
+    fun getNumberOfScans(): Flow<Int>
+    suspend fun deleteScan(scan: ScanDataEntity)
 
 }
 
@@ -40,13 +39,7 @@ class ScanDatabaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun resetOpenScan(
-    ): ScanDataEntity {
-        val openScan = scanDao.getOpenScan()
-            ?: throw OpenScanNotInitialized()
-        scanDao.put(openScan)
-        return openScan
-    }
+
 
     override suspend fun getOpenScan(): ScanDataEntity? {
         return scanDao.getOpenScan()
@@ -88,22 +81,22 @@ class ScanDatabaseDataSource @Inject constructor(
         return scanDao.get()
     }
 
-    override suspend fun getNumberOfScans(): Int {
+    override fun getNumberOfScans(): Flow<Int> {
         return scanDao.getNumberOfScans()
     }
 
-    override suspend fun deleteOpenScan() {
-        scanDao.deleteOpenScan()
+    override suspend fun deleteScan(scan: ScanDataEntity) {
+        scanDao.deleteScan(scan)
     }
 
 
     private fun createOpenScan(): ScanDataEntity = ScanDataEntity(
         id = "",
         dateScanned = LocalDateTime.now(Clock.systemUTC()),
-        dateModified = null,
-        properties = emptyMap(),
         submitted = false,
-        scanSource = null
+        scanSource = null,
+        barcode = "",
+        count = ""
     )
 
 

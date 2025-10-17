@@ -6,17 +6,17 @@ import com.example.stripesdemo.domain.entity.ScanDomainEntity
 fun ScanDataEntity.toDomain() = ScanDomainEntity(
     id = id,
     dateScanned = dateScanned,
-    dateModified = dateModified,
-    properties = properties,
     submitted = submitted,
-    scanSource = scanSource
+    scanSource = scanSource,
+    barcode = barcode,
+    count = count
 )
 
 fun ScanDomainEntity.toData() = ScanDataEntity(
     id = id,
     dateScanned = dateScanned,
-    dateModified = dateModified,
-    properties = properties,
     submitted = submitted,
-    scanSource = scanSource
+    scanSource = scanSource,
+    barcode = barcode,
+    count = count
 )

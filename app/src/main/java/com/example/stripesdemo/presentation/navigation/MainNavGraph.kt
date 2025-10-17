@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.stripesdemo.presentation.ui.screen.ScanScreen
+import com.example.stripesdemo.presentation.ui.screen.scan.ScanScreen
 import com.example.stripesdemo.presentation.ui.screen.scanlist.ScanListScreen
 
 @Composable

@@ -1,10 +1,10 @@
-package com.example.stripesdemo.presentation.ui.screen
+package com.example.stripesdemo.presentation.ui.screen.scan
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.stripesdemo.domain.interactor.scan.GetNumberOfScans
 import com.example.stripesdemo.domain.interactor.scan.GetOpenScanFlow
 import com.example.stripesdemo.domain.interactor.scan.InitOpenScan
-import com.example.stripesdemo.domain.interactor.scan.ResetOpenScanProperties
+import com.example.stripesdemo.domain.interactor.scan.SubmitScan
 import com.example.stripesdemo.presentation.BlocViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +19,7 @@ import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.getOrThrow
@@ -29,9 +30,9 @@ class ScanViewModel @Inject constructor(
     getScannerInput: GetScannerInput,
     setScannerEnabled: SetScannerEnabled,
     private val initOpenScan: InitOpenScan,
-    private val resetOpenScanProperties: ResetOpenScanProperties,
     private val triggerCameraScan: TriggerCameraScan,
-    private val savedStateHandle: SavedStateHandle
+    private val submitScan: SubmitScan,
+    getNumberOfScans: GetNumberOfScans
 ): BlocViewModel<ScanEvent, ScanState>() {
 
 
@@ -44,20 +45,32 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
+    private val numberOfScansFlow = getNumberOfScans.execute(Unit)
+        .map { it.getOrThrow() }
+        .catch { addError(it) }
+
+
     private val dialogFlow = MutableSharedFlow<ScanDialog?>()
 
+    private val barcodeFlow = MutableSharedFlow<String>()
+    private val countFlow = MutableSharedFlow<String>()
 
     override val _uiState: StateFlow<ScanState> = combine(
         suspend { initOpenScan() }.asFlow().flatMapLatest { openScanFlow },
-        scannerInputFlow,
-        dialogFlow.onStart { emit(null) }
-    ) { openScan, input, dialog ->
+        merge(barcodeFlow.onStart { emit("") },
+            scannerInputFlow
+        ),
+        countFlow.onStart { emit("") },
+        dialogFlow.onStart { emit(null) },
+        numberOfScansFlow
+    ) { openScan, barcode, count, dialog, numberOfScans ->
 
         ScanState.Content(
-            barcode = "",
-            count = 1,
-            isSubmitEnabled = true,
-            dialog = dialog
+            barcode = barcode,
+            count = count,
+            isSubmitEnabled = barcode.isNotEmpty() && count.isNotEmpty(),
+            dialog = dialog,
+            numberOfScans = numberOfScans
         )
 
     }.stateIn(
@@ -68,12 +81,36 @@ class ScanViewModel @Inject constructor(
 
 
     init {
+        on(ScanEvent.BarcodeChanged::class) {
+            barcodeFlow.emit(it.value)
+        }
+
+        on(ScanEvent.CountChanged::class) {
+            countFlow.emit(it.value)
+        }
 
         on(ScanEvent.TriggerCameraScan::class) {
             triggerCameraScan.execute(Unit).fold(
                 onSuccess = {},
                 onFailure = { addError(it) }
             )
+        }
+
+        on(ScanEvent.SubmitScan::class) {
+            onState<ScanState.Content> { state ->
+                submitScan.execute(params = SubmitScan.Params(
+                    barcode = state.barcode,
+                    count = state.count
+                    )
+                )
+                .fold(
+                    onSuccess = {
+                        barcodeFlow.emit("")
+                        countFlow.emit("")
+                    },
+                    onFailure = { addError(it) }
+                )
+            }
         }
 
 
@@ -99,9 +136,10 @@ sealed interface ScanState {
 
     data class Content(
         val barcode: String,
-        val count: Int,
+        val count: String,
         val isSubmitEnabled: Boolean,
-        val dialog: ScanDialog?
+        val dialog: ScanDialog?,
+        val numberOfScans: Int
     ): ScanState
 
 }
@@ -112,11 +150,11 @@ sealed interface ScanState {
 sealed interface ScanEvent {
     object ClearForm: ScanEvent
     data class SetScannerEnabled(val isEnabled: Boolean) : ScanEvent
-    object SubmitText : ScanEvent
-    data class TextChanged(val fieldName: String, val value: String) : ScanEvent
+
+    data class BarcodeChanged(val value: String) : ScanEvent
+    data class CountChanged(val value: String) : ScanEvent
     object TriggerCameraScan: ScanEvent
-
-
+    object SubmitScan: ScanEvent
 
 
 }

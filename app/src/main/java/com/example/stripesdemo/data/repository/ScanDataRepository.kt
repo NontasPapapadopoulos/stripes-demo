@@ -21,10 +21,6 @@ class ScanDataRepository @Inject constructor(
         return scanDataSource.getOpenScan()?.toDomain()
     }
 
-    override suspend fun resetOpenScan(): ScanDomainEntity {
-        val openScan = scanDataSource.getOpenScan()
-        return scanDataSource.resetOpenScan().toDomain()
-    }
 
     override suspend fun getScan(id: String): ScanDomainEntity {
         return scanDataSource.getScan(id).toDomain()
@@ -46,12 +42,12 @@ class ScanDataRepository @Inject constructor(
         return scanDataSource.getScans().map { scans -> scans.map { it.toDomain() } }
     }
 
-    override suspend fun getNumberOfScans(): Int {
+    override fun getNumberOfScans(): Flow<Int> {
         return scanDataSource.getNumberOfScans()
     }
 
-    override suspend fun deleteOpenScan() {
-        scanDataSource.deleteOpenScan()
+    override suspend fun deleteScan(scan: ScanDomainEntity) {
+        scanDataSource.deleteScan(scan.toData())
     }
 
 
