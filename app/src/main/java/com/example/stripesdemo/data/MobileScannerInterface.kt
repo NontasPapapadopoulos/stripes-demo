@@ -1,23 +1,20 @@
 package com.example.stripesdemo.data
 
 import android.content.Context
+import com.example.stripesdemo.domain.entity.enums.Scanner
+import com.example.stripesdemo.domain.repository.SettingsRepository
+import com.example.stripesdemo.domain.utils.throttleFirst
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
-import net.stripesapp.mlsretailsoftware.data.MobileScanner
 import net.stripesapp.mlsretailsoftware.data.scannerdevice.FingerScanner
-import net.stripesapp.mlsretailsoftware.data.scannerdevice.ScannerInterface
 
-import net.stripesapp.mlsretailsoftware.domain.entity.enums.Scanner
-import net.stripesapp.mlsretailsoftware.domain.repository.SettingsRepository
-import net.stripesapp.mlsretailsoftware.domain.utils.throttleFirst
 
 
 class MobileScannerInterface(

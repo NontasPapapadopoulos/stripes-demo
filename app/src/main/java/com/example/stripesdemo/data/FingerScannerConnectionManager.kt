@@ -1,16 +1,16 @@
-package net.stripesapp.mlsretailsoftware.data.scannerdevice
+package com.example.stripesdemo.data
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
+import com.example.stripesdemo.data.entity.DeviceDataEntity
+import com.example.stripesdemo.domain.entity.ConnectionStateDomainEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import net.stripesapp.mlsretailsoftware.data.entity.DeviceDataEntity
-import net.stripesapp.mlsretailsoftware.domain.entity.ConnectionStateDomainEntity
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject

@@ -1,0 +1,25 @@
+package com.example.stripesdemo.data.repository
+
+import android.net.Uri
+import com.example.stripesdemo.domain.entity.SettingsDomainEntity
+import com.example.stripesdemo.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+
+class SettingsDataRepository @Inject constructor(
+    private val settingsDataSource: SettingsDataSource,
+) : SettingsRepository {
+
+    override fun getSettingsFlow(): Flow<SettingsDomainEntity?> {
+        return settingsDataSource.getSettingsFlow().map { it?.toDomain() }
+    }
+
+    override suspend fun getSettings(): SettingsDomainEntity? {
+        return settingsDataSource.getSettings()?.toDomain()
+    }
+
+
+
+
+}

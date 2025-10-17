@@ -1,4 +1,4 @@
-package net.stripesapp.mlsretailsoftware.data.scannerdevice
+package com.example.stripesdemo.data
 
 import android.content.BroadcastReceiver
 import android.content.Context
