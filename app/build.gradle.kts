@@ -72,8 +72,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-    // Devices
-//    implementation(mapOf("name" to "CasioDeviceLibrary", "ext" to "aar"))
+    // Casio Device
+    implementation(files("src/main/libs/CasioDeviceLibrary.aar"))
 
     // Mobile Scan
     implementation(libs.codescanner)
