@@ -19,12 +19,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ScannerDeviceModule {
 
-//    @Provides
-//    @Singleton
-//    fun provideMobileScanner(
-//
-//    ): MobileScanner
-
     @Provides
     @Singleton
     fun provideScannerInterface(
@@ -34,15 +28,13 @@ object ScannerDeviceModule {
         fingerScanner: FingerScanner,
         mobileScanner: MobileScanner
     ): ScannerInterface {
-             return  MultipleScannerInterface(
-                context,
-                settingsRepository,
-                coroutineScope,
-                fingerScanner,
-                 mobileScanner
-            )
-
-        }
-
+         return  MultipleScannerInterface(
+            context,
+            settingsRepository,
+            coroutineScope,
+            fingerScanner,
+             mobileScanner
+        )
+    }
 
 }
