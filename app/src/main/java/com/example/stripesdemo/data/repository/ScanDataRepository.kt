@@ -21,17 +21,8 @@ class ScanDataRepository @Inject constructor(
         return scanDataSource.getOpenScan()?.toDomain()
     }
 
-
-    override suspend fun getScan(id: String): ScanDomainEntity {
-        return scanDataSource.getScan(id).toDomain()
-    }
-
     override fun getOpenScanFlow(): Flow<ScanDomainEntity> {
         return scanDataSource.getOpenScanFlow().map { it.toDomain() }
-    }
-
-    override suspend fun save(scan: ScanDomainEntity) {
-        scanDataSource.save(scan.toData())
     }
 
     override suspend fun saveAndSubmit(scan: ScanDomainEntity) {

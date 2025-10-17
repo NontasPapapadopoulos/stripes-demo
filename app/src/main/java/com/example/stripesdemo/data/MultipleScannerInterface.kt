@@ -28,11 +28,12 @@ import jp.casio.ht.devicelibrary.ScannerLibrary.CONSTANT.OUTPUT.USER
 private const val CASIO_BROADCAST_ACTION = "device.common.USERMSG"
 
 
-class CasioScannerInterface(
+class MultipleScannerInterface(
     val context: Context,
     settingsRepository: SettingsRepository,
     coroutineScope: CoroutineScope,
-    private val fingerScanner: FingerScanner
+    private val fingerScanner: FingerScanner,
+    private val mobileScanner: MobileScanner
 ) : ScannerInterface {
 
     private val scannerLibrary = ScannerLibrary()
@@ -50,6 +51,8 @@ class CasioScannerInterface(
             .onEach { setScanner(Scanner.Regular) },
         fingerScanner.inputFlow
             .onEach { setScanner(Scanner.Finger) },
+        mobileScanner.scanFlow
+            .onEach { setScanner(Scanner.Mobile) }
     )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())
@@ -94,6 +97,10 @@ class CasioScannerInterface(
         enabled.value = false
 
         fingerScanner.setEnabled(false)
+    }
+
+    override suspend fun performCameraScan() {
+        mobileScanner.scan()
     }
 
     private fun setScanner(scanner: Scanner) {

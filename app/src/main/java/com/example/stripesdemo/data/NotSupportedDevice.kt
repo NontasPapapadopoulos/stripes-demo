@@ -15,6 +15,9 @@ object NotSupportedDevice : ScannerInterface {
 
     override fun enable() {}
     override fun disable() {}
+    override suspend fun performCameraScan() {
+        TODO("Not yet implemented")
+    }
 
 
 }

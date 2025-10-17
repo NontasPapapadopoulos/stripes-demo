@@ -5,7 +5,7 @@ import com.example.stripesdemo.domain.entity.ScanDomainEntity
 import com.example.stripesdemo.domain.interactor.scan.DeleteScan
 import com.example.stripesdemo.domain.interactor.scan.GetScans
 import com.example.stripesdemo.presentation.BlocViewModel
-import com.example.stripesdemo.presentation.ui.screen.scan.ScanState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@HiltViewModel
 class ScanListViewmodel @Inject constructor(
     private val getScans: GetScans,
     private val deleteScan: DeleteScan

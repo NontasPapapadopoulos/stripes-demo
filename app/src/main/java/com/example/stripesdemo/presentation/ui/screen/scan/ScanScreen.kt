@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.outlined.DoNotTouch
+import androidx.compose.material.icons.outlined.PanToolAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -42,7 +44,8 @@ import com.example.stripesdemo.presentation.exception.errorStringResource
 @Composable
 fun ScanScreen(
     viewModel: ScanViewModel = hiltViewModel(),
-    navigateToScanList: () -> Unit
+    navigateToScanList: () -> Unit,
+    navigateToFingerScanner: () -> Unit,
 ) {
 
     val context = LocalContext.current
@@ -63,6 +66,7 @@ fun ScanScreen(
             ScanContent(
                 state = state,
                 onNavigateToScanList = navigateToScanList,
+                onNavigateToFingerScanner = navigateToFingerScanner,
                 triggerCameraScan = { viewModel.add(ScanEvent.TriggerCameraScan) },
                 onCountChanged = { viewModel.add(ScanEvent.CountChanged(it)) },
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
@@ -82,6 +86,7 @@ fun ScanScreen(
 private fun ScanContent(
     state: ScanState.Content,
     onNavigateToScanList: () -> Unit,
+    onNavigateToFingerScanner: () -> Unit,
     triggerCameraScan: () -> Unit,
     submitScan: () -> Unit,
     onBarcodeChanged: (String) -> Unit,
@@ -95,6 +100,16 @@ private fun ScanContent(
                     Text(text = "Scan")
                 },
                 actions = {
+                    IconButton(
+                        onClick = onNavigateToFingerScanner
+                    ) {
+                        Icon(
+                            if (state.devices.isNotEmpty()) Icons.Outlined.PanToolAlt else Icons.Outlined.DoNotTouch,
+                            null
+                            )
+                    }
+
+
                     IconButton(onClick = onNavigateToScanList) {
                         Icon(Icons.Default.List, null)
                     }
@@ -169,13 +184,15 @@ private fun ScanScreenPreview() {
             count = "1",
             isSubmitEnabled = true,
             dialog = null,
-            numberOfScans = 3
+            numberOfScans = 3,
+            devices = listOf()
 
         ),
         onNavigateToScanList = {},
         triggerCameraScan = {},
         onCountChanged = {},
         onBarcodeChanged = {},
-        submitScan = {}
+        submitScan = {},
+        onNavigateToFingerScanner = {},
     )
 }

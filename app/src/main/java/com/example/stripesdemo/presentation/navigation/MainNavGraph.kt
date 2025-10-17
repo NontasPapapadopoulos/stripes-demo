@@ -1,6 +1,7 @@
 package com.example.stripesdemo.presentation.navigation
 
 
+import FingerScannerSettings
 import Scan
 import ScanList
 import androidx.compose.runtime.Composable
@@ -22,10 +23,11 @@ fun MainNavGraph(
         composable<Scan> {
             ScanScreen (
                 navigateToScanList = {
-                    navController.navigate(ScanList) {
-//                        removeBackStack(navController)
-                    }
+                    navController.navigate(ScanList)
                 },
+                navigateToFingerScanner = {
+                    navController.navigate(FingerScannerSettings)
+                }
             )
         }
 

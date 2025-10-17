@@ -36,12 +36,12 @@ class FingerScannerConnectionManager @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
-    fun setConnectionCode(hexId: String) {
-        val setHexIdIntent = Intent(SET_CONNECTION_ID).apply {
-            putExtra(CONNECTION_POOL_ID, hexId)
-        }
-        context.sendBroadcast(setHexIdIntent)
-    }
+//    fun setConnectionCode(hexId: String) {
+//        val setHexIdIntent = Intent(SET_CONNECTION_ID).apply {
+//            putExtra(CONNECTION_POOL_ID, hexId)
+//        }
+//        context.sendBroadcast(setHexIdIntent)
+//    }
 
 
     fun getConnectionCode(): Flow<String> = callbackFlow {

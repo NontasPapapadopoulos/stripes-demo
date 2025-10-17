@@ -1,13 +1,11 @@
-package net.stripesapp.mlsretailsoftware.presentation.di
+package com.example.stripesdemo.presentation.di
 
 import android.content.Context
-import com.example.stripesdemo.data.CasioScannerInterface
+import com.example.stripesdemo.data.MultipleScannerInterface
 import com.example.stripesdemo.data.FingerScanner
-import com.example.stripesdemo.data.MobileScannerInterface
-import com.example.stripesdemo.data.NotSupportedDevice
+import com.example.stripesdemo.data.MobileScanner
 import com.example.stripesdemo.data.ScannerInterface
 import com.example.stripesdemo.domain.repository.SettingsRepository
-import com.example.stripesdemo.presentation.Device
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +18,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ScannerDeviceModule {
+
+//    @Provides
+//    @Singleton
+//    fun provideMobileScanner(
+//
+//    ): MobileScanner
+
     @Provides
     @Singleton
     fun provideScannerInterface(
@@ -27,25 +32,17 @@ object ScannerDeviceModule {
         settingsRepository: SettingsRepository,
         coroutineScope: CoroutineScope,
         fingerScanner: FingerScanner,
+        mobileScanner: MobileScanner
     ): ScannerInterface {
-        return when {
-            Device.isScanner -> CasioScannerInterface(
+             return  MultipleScannerInterface(
                 context,
                 settingsRepository,
                 coroutineScope,
-                fingerScanner
+                fingerScanner,
+                 mobileScanner
             )
-            Device.isMobile -> MobileScannerInterface(
-                context,
-                settingsRepository,
-                coroutineScope,
-                fingerScanner
-            )
-            else -> NotSupportedDevice
+
         }
-    }
-
-
 
 
 }

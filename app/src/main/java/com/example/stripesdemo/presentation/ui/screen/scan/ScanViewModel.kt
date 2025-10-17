@@ -1,6 +1,7 @@
 package com.example.stripesdemo.presentation.ui.screen.scan
 
 import androidx.lifecycle.viewModelScope
+import com.example.stripesdemo.domain.entity.DeviceDomainEntity
 import com.example.stripesdemo.domain.interactor.scan.GetNumberOfScans
 import com.example.stripesdemo.domain.interactor.scan.GetOpenScanFlow
 import com.example.stripesdemo.domain.interactor.scan.InitOpenScan
@@ -17,6 +18,8 @@ import kotlinx.coroutines.flow.stateIn
 import com.example.stripesdemo.domain.interactor.scanner.GetScannerInput
 import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
+import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectedDevices
+import com.example.stripesdemo.domain.utils.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.merge
@@ -32,6 +35,7 @@ class ScanViewModel @Inject constructor(
     private val initOpenScan: InitOpenScan,
     private val triggerCameraScan: TriggerCameraScan,
     private val submitScan: SubmitScan,
+    getConnectedDevices: GetConnectedDevices,
     getNumberOfScans: GetNumberOfScans
 ): BlocViewModel<ScanEvent, ScanState>() {
 
@@ -49,6 +53,10 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
+    private val getConnectedDevicesFlow = getConnectedDevices.execute(Unit)
+        .map { it.getOrThrow() }
+        .catch { addError(it) }
+
 
     private val dialogFlow = MutableSharedFlow<ScanDialog?>()
 
@@ -62,15 +70,17 @@ class ScanViewModel @Inject constructor(
         ),
         countFlow.onStart { emit("") },
         dialogFlow.onStart { emit(null) },
-        numberOfScansFlow
-    ) { openScan, barcode, count, dialog, numberOfScans ->
+        numberOfScansFlow,
+        getConnectedDevicesFlow.onStart { emit(listOf()) }
+    ) { openScan, barcode, count, dialog, numberOfScans, devices ->
 
         ScanState.Content(
             barcode = barcode,
             count = count,
             isSubmitEnabled = barcode.isNotEmpty() && count.isNotEmpty(),
             dialog = dialog,
-            numberOfScans = numberOfScans
+            numberOfScans = numberOfScans,
+            devices = devices
         )
 
     }.stateIn(
@@ -139,7 +149,8 @@ sealed interface ScanState {
         val count: String,
         val isSubmitEnabled: Boolean,
         val dialog: ScanDialog?,
-        val numberOfScans: Int
+        val numberOfScans: Int,
+        val devices: List<DeviceDomainEntity>
     ): ScanState
 
 }

@@ -2,7 +2,6 @@ package com.example.stripesdemo.data.datasource
 
 import com.example.stripesdemo.data.dao.ScanDao
 import com.example.stripesdemo.data.entity.ScanDataEntity
-import com.example.stripesdemo.data.exception.OpenScanNotInitialized
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import java.time.Clock
@@ -11,18 +10,12 @@ import java.util.UUID
 import javax.inject.Inject
 
 interface ScanDataSource {
-    suspend fun initOpenScan()
-
     suspend fun getOpenScan(): ScanDataEntity?
-    suspend fun getScan(id: String): ScanDataEntity
+    suspend fun initOpenScan()
     fun getOpenScanFlow(): Flow<ScanDataEntity>
-
     suspend fun saveAndSubmit(
         openScan: ScanDataEntity,
     )
-
-    suspend fun save(scan: ScanDataEntity)
-    suspend fun save(scans: List<ScanDataEntity>)
     fun getScans(): Flow<List<ScanDataEntity>>
     fun getNumberOfScans(): Flow<Int>
     suspend fun deleteScan(scan: ScanDataEntity)
@@ -39,14 +32,8 @@ class ScanDatabaseDataSource @Inject constructor(
         }
     }
 
-
-
     override suspend fun getOpenScan(): ScanDataEntity? {
         return scanDao.getOpenScan()
-    }
-
-    override suspend fun getScan(id: String): ScanDataEntity {
-        return scanDao.getScan(id)
     }
 
     override suspend fun saveAndSubmit(
@@ -66,14 +53,6 @@ class ScanDatabaseDataSource @Inject constructor(
 
     override fun getOpenScanFlow(): Flow<ScanDataEntity> {
         return scanDao.getOpenScanFlow().filterNotNull()
-    }
-
-    override suspend fun save(scan: ScanDataEntity) {
-        scanDao.put(scan)
-    }
-
-    override suspend fun save(scans: List<ScanDataEntity>) {
-        scanDao.put(scans)
     }
 
 

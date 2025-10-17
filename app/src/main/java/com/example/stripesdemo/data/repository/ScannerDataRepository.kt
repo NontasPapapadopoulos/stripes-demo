@@ -73,14 +73,6 @@ class ScannerDataRepository @Inject constructor(
     }
 
 
-//    override suspend fun setConnectionCode(id: String) {
-//        connectionManager.setConnectionCode(id)
-//    }
-//
-//    override suspend fun getConnectionCode(): String {
-//        return scannerDataSource.getConnectionCode()
-//    }
-
     override fun getConnectionState(): Flow<ConnectionStateDomainEntity> {
         return connectionManager.getConnectionState()
     }
@@ -101,7 +93,7 @@ class ScannerDataRepository @Inject constructor(
 
     override suspend fun performMobileScan() {
 //        if (scannerInterface is MobileScannerInterface)
-           // scannerInterface.performMobileScan()
+        scannerInterface.performCameraScan()
     }
 
 }
