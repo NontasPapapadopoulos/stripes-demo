@@ -43,7 +43,7 @@ class ScannerDataRepository @Inject constructor(
 
 
     override suspend fun sendFeedback(sensorFeedback: SensorFeedback) {
-        if (getDevice() == Scanner.Regular || getDevice() == Scanner.Mobile)
+        if (getDevice() == Scanner.Regular || getDevice() == Scanner.Camera)
             sensorFeedbackManager.sendFeedback(sensorFeedback)
         else
             opticonFeedbackManager.sendFeedback(sensorFeedback)
@@ -81,13 +81,13 @@ class ScannerDataRepository @Inject constructor(
     override fun getScanSource(): ScanSource {
         val device = getDevice()
         return when (device) {
-            Scanner.Regular -> ScanSource.Casio
-            Scanner.Finger -> ScanSource.Opticon
-            Scanner.Mobile -> ScanSource.Mobile
+            Scanner.Regular -> ScanSource.RegularScanner
+            Scanner.Finger -> ScanSource.FingerScanner
+            Scanner.Camera -> ScanSource.Camera
         }
     }
 
-    override suspend fun performMobileScan() {
+    override suspend fun performCameraScan() {
         scannerInterface.performCameraScan()
     }
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.stripesdemo.domain.entity.ScanDomainEntity
@@ -97,19 +99,42 @@ private fun ScanListContent(
 
         ) {
 
-        LazyColumn(
-            modifier = Modifier.padding(it)
+        Column(
+            modifier = Modifier
+                .padding(it)
+
+                .fillMaxSize()
         ) {
 
-            items(items = content.scans) { scan ->
-                ScanItem(
-                    scan = scan,
-                    onDeleteScan = onDeleteScan
+            Column(
+                modifier = Modifier.padding(start = contentSpacing4)
+            ) {
+                Text(
+                    text = "Number of Products: ${content.scans.size}",
+                    style = MaterialTheme.typography.bodySmall
                 )
 
-                HorizontalDivider()
+                Text(
+                    text = "Total stock: ${content.scans.sumOf { it.count.toInt() }}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
+
+            HorizontalDivider(thickness = 2.dp)
+
+            LazyColumn {
+
+                items(items = content.scans) { scan ->
+                    ScanItem(
+                        scan = scan,
+                        onDeleteScan = onDeleteScan
+                    )
+
+                    HorizontalDivider()
+                }
+
+            }
         }
     }
 

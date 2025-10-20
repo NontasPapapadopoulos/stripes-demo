@@ -27,7 +27,7 @@ interface ScannerRepository {
 
     fun getConnectedDevices(): Flow<List<DeviceDomainEntity>>
 
-    suspend fun performMobileScan()
+    suspend fun performCameraScan()
 
     fun getScanSource(): ScanSource
 

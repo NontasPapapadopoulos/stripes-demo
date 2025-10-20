@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
@@ -50,7 +49,7 @@ casioScanner.scansFlow
         fingerScanner.inputFlow
             .onEach { setScanner(Scanner.Finger) },
         mobileScanner.scanFlow
-            .onEach { setScanner(Scanner.Mobile) }
+            .onEach { setScanner(Scanner.Camera) }
     )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())
