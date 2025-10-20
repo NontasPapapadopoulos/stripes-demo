@@ -2,7 +2,6 @@ package com.example.stripesdemo.presentation.ui.screen.scan
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.DoNotTouch
 import androidx.compose.material.icons.outlined.PanToolAlt
@@ -32,6 +29,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +42,7 @@ import com.example.stripesdemo.presentation.ui.icons.Barcode
 import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
 import com.example.stripesdemo.presentation.exception.errorStringResource
+import com.example.stripesdemo.presentation.ui.composables.mapKeys
 
 
 @Composable
@@ -74,7 +74,8 @@ fun ScanScreen(
                 triggerCameraScan = { viewModel.add(ScanEvent.TriggerCameraScan) },
                 onCountChanged = { viewModel.add(ScanEvent.CountChanged(it)) },
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
-                submitScan = { viewModel.add(ScanEvent.SubmitScan) }
+                submitScan = { viewModel.add(ScanEvent.SubmitScan) },
+                setScannerEnabled = { viewModel.add(ScanEvent.SetScannerEnabled(it)) }
             )
         }
         ScanState.Idle -> {
@@ -95,9 +96,18 @@ private fun ScanContent(
     submitScan: () -> Unit,
     onBarcodeChanged: (String) -> Unit,
     onCountChanged: (String) -> Unit,
+    setScannerEnabled: (Boolean) -> Unit,
 ) {
 
+    val mappings = mapOf(
+        Key.Enter to {
+        if (state.isSubmitEnabled)
+            submitScan()
+        }
+    )
+
     Scaffold(
+        modifier = Modifier.mapKeys(mappings = mappings),
         topBar = {
             TopAppBar(
                 title = {
@@ -124,7 +134,6 @@ private fun ScanContent(
             FloatingActionButton(
                 onClick = triggerCameraScan,
             ) {
-
                 Icon(StripesIcons.Barcode,null)
             }
         }
@@ -144,7 +153,11 @@ private fun ScanContent(
                 label = {
                     Text(text = "Barcode")
                 },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
+                    .onFocusEvent {
+                        setScannerEnabled(true)
+                    }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -163,20 +176,23 @@ private fun ScanContent(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (state.count.isNotEmpty() && state.barcode.isNotEmpty()) {
+                        if (state.isSubmitEnabled)
                             submitScan()
-                        }
+
                     }
                 ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
+                    .onFocusEvent {
+                        setScannerEnabled(false)
+                    }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = submitScan,
-                enabled = state.barcode.isNotEmpty() && state.count.isNotEmpty() && state.count.isDigitsOnly(),
+                enabled = state.isSubmitEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Submit Scan")
@@ -213,5 +229,6 @@ private fun ScanScreenPreview() {
         onBarcodeChanged = {},
         submitScan = {},
         onNavigateToFingerScanner = {},
+        setScannerEnabled = {}
     )
 }

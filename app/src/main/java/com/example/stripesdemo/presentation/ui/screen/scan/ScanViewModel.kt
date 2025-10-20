@@ -123,6 +123,13 @@ class ScanViewModel @Inject constructor(
             }
         }
 
+        on(ScanEvent.SetScannerEnabled::class) {
+            onState<ScanState.Content> { state ->
+                setScannerEnabled.execute(SetScannerEnabled.Params( it.isEnabled))
+                    .fold(onSuccess = { }, onFailure = { throwable -> addError(throwable) })
+            }
+        }
+
 
     }
 
