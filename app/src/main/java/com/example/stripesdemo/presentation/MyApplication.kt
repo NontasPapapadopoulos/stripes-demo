@@ -1,7 +1,7 @@
 package com.example.stripesdemo.presentation
 
 import android.app.Application
-import com.example.stripesdemo.data.ScannerInterface
+import com.example.stripesdemo.data.device.ScannerInterface
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject

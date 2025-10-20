@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data
+package com.example.stripesdemo.data.device
 
 import com.example.stripesdemo.domain.entity.enums.Scanner
 import kotlinx.coroutines.flow.Flow

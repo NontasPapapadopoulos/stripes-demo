@@ -2,7 +2,7 @@ package com.example.stripesdemo.presentation.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.stripesdemo.data.AppDatabase
+import com.example.stripesdemo.data.db.AppDatabase
 import com.example.stripesdemo.data.dao.ScanDao
 import com.example.stripesdemo.data.dao.ScannerSettingsDao
 import dagger.Module

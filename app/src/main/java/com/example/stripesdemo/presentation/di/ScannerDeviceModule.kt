@@ -1,10 +1,11 @@
 package com.example.stripesdemo.presentation.di
 
 import android.content.Context
-import com.example.stripesdemo.data.MultipleScannerInterface
-import com.example.stripesdemo.data.FingerScanner
-import com.example.stripesdemo.data.MobileScanner
-import com.example.stripesdemo.data.ScannerInterface
+import com.example.stripesdemo.data.device.CasioScanner
+import com.example.stripesdemo.data.device.MultipleScannerInterface
+import com.example.stripesdemo.data.device.FingerScanner
+import com.example.stripesdemo.data.device.MobileScanner
+import com.example.stripesdemo.data.device.ScannerInterface
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -26,14 +27,16 @@ object ScannerDeviceModule {
         settingsRepository: SettingsRepository,
         coroutineScope: CoroutineScope,
         fingerScanner: FingerScanner,
-        mobileScanner: MobileScanner
+        mobileScanner: MobileScanner,
+        casioScanner: CasioScanner
     ): ScannerInterface {
          return  MultipleScannerInterface(
             context,
             settingsRepository,
             coroutineScope,
             fingerScanner,
-             mobileScanner
+             mobileScanner,
+             casioScanner
         )
     }
 

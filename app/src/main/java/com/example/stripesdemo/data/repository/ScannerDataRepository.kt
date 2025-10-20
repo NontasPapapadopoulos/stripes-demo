@@ -1,20 +1,13 @@
 package com.example.stripesdemo.data.repository
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.BatteryManager
-import android.provider.Settings
-import com.example.stripesdemo.data.FingerScannerConnectionManager
-import com.example.stripesdemo.data.FingerScannerSettingsManager
-import com.example.stripesdemo.data.OpticonFeedbackManager
-import com.example.stripesdemo.data.ScannerInterface
+import com.example.stripesdemo.data.device.FingerScannerConnectionManager
+import com.example.stripesdemo.data.device.FingerScannerSettingsManager
+import com.example.stripesdemo.data.device.OpticonFeedbackManager
+import com.example.stripesdemo.data.device.ScannerInterface
 import dagger.hilt.android.qualifiers.ApplicationContext
 
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import com.example.stripesdemo.data.mapper.toDomain
 import com.example.stripesdemo.domain.entity.ConnectionStateDomainEntity
@@ -95,7 +88,6 @@ class ScannerDataRepository @Inject constructor(
     }
 
     override suspend fun performMobileScan() {
-//        if (scannerInterface is MobileScannerInterface)
         scannerInterface.performCameraScan()
     }
 

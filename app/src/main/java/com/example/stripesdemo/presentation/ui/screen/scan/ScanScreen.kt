@@ -218,7 +218,6 @@ private fun ScanScreenPreview() {
             barcode = "12312312321",
             count = "1",
             isSubmitEnabled = true,
-            dialog = null,
             numberOfScans = 3,
             devices = listOf()
 

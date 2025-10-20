@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data
+package com.example.stripesdemo.data.device
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -25,15 +25,14 @@ import kotlinx.coroutines.flow.shareIn
 import jp.casio.ht.devicelibrary.ScannerLibrary.CONSTANT.OUTPUT.USER
 
 
-private const val CASIO_BROADCAST_ACTION = "device.common.USERMSG"
-
 
 class MultipleScannerInterface(
     val context: Context,
     settingsRepository: SettingsRepository,
     coroutineScope: CoroutineScope,
     private val fingerScanner: FingerScanner,
-    private val mobileScanner: MobileScanner
+    private val mobileScanner: MobileScanner,
+    private val casioScanner: CasioScanner
 ) : ScannerInterface {
 
     private val scannerLibrary = ScannerLibrary()
@@ -46,8 +45,7 @@ class MultipleScannerInterface(
 
 
     private val scansFlow = merge(
-        context.broadcastReceiverFlow(CASIO_BROADCAST_ACTION)
-            .map { scannerLibrary.getScanResultSafe() }
+casioScanner.scansFlow
             .onEach { setScanner(Scanner.Regular) },
         fingerScanner.inputFlow
             .onEach { setScanner(Scanner.Finger) },
@@ -100,7 +98,8 @@ class MultipleScannerInterface(
     }
 
     override suspend fun performCameraScan() {
-        mobileScanner.scan()
+        if (enabled.value)
+            mobileScanner.scan()
     }
 
     private fun setScanner(scanner: Scanner) {
@@ -109,16 +108,6 @@ class MultipleScannerInterface(
 
 }
 
-private fun ScannerLibrary.getScanResultSafe(): String? {
-    try {
-        val scan = ScannerLibrary.ScanResult()
-        if (this.getScanResult(scan) == ScannerLibrary.CONSTANT.RETURN.SUCCESS && scan.value?.isNotEmpty() == true) {
-            return scan.value.map { it.toInt().toChar() }.joinToString("")
-        }
-    } catch (throwable: Throwable) {
-    }
-    return null
-}
 
 fun Context.broadcastReceiverFlow(
     action: String,

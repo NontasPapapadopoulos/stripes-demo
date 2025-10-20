@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data
+package com.example.stripesdemo.data.db
 
 import com.google.gson.*
 import java.lang.reflect.Type

@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data
+package com.example.stripesdemo.data.db
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson

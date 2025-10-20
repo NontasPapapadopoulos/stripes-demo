@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data
+package com.example.stripesdemo.data.device
 
 import android.content.BroadcastReceiver
 import android.content.Context
