@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import com.example.stripesdemo.domain.interactor.scanner.GetScannerInput
+import com.example.stripesdemo.domain.interactor.scanner.GetScannerStatus
 import com.example.stripesdemo.domain.interactor.scanner.SendSensorFeedback
 import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
@@ -40,7 +40,8 @@ class ScanViewModel @Inject constructor(
     private val submitScan: SubmitScan,
     getConnectedDevices: GetConnectedDevices,
     getNumberOfScans: GetNumberOfScans,
-    private val sendSensorFeedback: SendSensorFeedback
+    private val sendSensorFeedback: SendSensorFeedback,
+    private val getScannerStatus: GetScannerStatus
 ): BlocViewModel<ScanEvent, ScanState>() {
 
     private val openScanFlow = getOpenScanFlow.execute(Unit)
@@ -51,7 +52,12 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
         .onEach {
-            sendSensorFeedback.execute(SendSensorFeedback.Params(SensorFeedback.SUCCESS))
+            onState<ScanState.Content> { state ->
+                if (state.isScannerEnabled)
+                    sendSensorFeedback.execute(SendSensorFeedback.Params(SensorFeedback.SUCCESS))
+//                else
+//                    sendSensorFeedback.execute(SendSensorFeedback.Params(SensorFeedback.ERROR))
+            }
         }
 
     private val numberOfScansFlow = getNumberOfScans.execute(Unit)
@@ -62,6 +68,9 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
+    private val scannerStatusFlow = getScannerStatus.execute(Unit)
+        .map { it.getOrThrow() }
+        .catch { addError(it) }
 
     private val barcodeFlow = MutableSharedFlow<String>()
     private val countFlow = MutableSharedFlow<String>()
@@ -73,15 +82,17 @@ class ScanViewModel @Inject constructor(
         ),
         countFlow.onStart { emit("") },
         numberOfScansFlow,
-        getConnectedDevicesFlow.onStart { emit(listOf()) }
-    ) { openScan, barcode, count, numberOfScans, devices ->
+        getConnectedDevicesFlow.onStart { emit(listOf()) },
+        scannerStatusFlow.onStart { emit(true) }
+    ) { openScan, barcode, count, numberOfScans, connectedDevices, isScannerEnabled ->
 
         ScanState.Content(
             barcode = barcode,
             count = count,
             isSubmitEnabled = barcode.isNotEmpty() && count.isNotEmpty(),
             numberOfScans = numberOfScans,
-            devices = devices
+            connectedDevices = connectedDevices,
+            isScannerEnabled = isScannerEnabled
         )
 
     }.stateIn(
@@ -152,7 +163,8 @@ sealed interface ScanState {
         val count: String,
         val isSubmitEnabled: Boolean,
         val numberOfScans: Int,
-        val devices: List<DeviceDomainEntity>
+        val connectedDevices: List<DeviceDomainEntity>,
+        val isScannerEnabled: Boolean
     ): ScanState
 
 }

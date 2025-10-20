@@ -125,7 +125,7 @@ private fun ScanContent(
                         onClick = onNavigateToFingerScanner
                     ) {
                         Icon(
-                            if (state.devices.isNotEmpty()) Icons.Outlined.PanToolAlt else Icons.Outlined.DoNotTouch,
+                            if (state.connectedDevices.isNotEmpty()) Icons.Outlined.PanToolAlt else Icons.Outlined.DoNotTouch,
                             null
                             )
                     }
@@ -241,7 +241,8 @@ private fun ScanScreenPreview() {
             count = "1",
             isSubmitEnabled = true,
             numberOfScans = 3,
-            devices = listOf()
+            connectedDevices = listOf(),
+            isScannerEnabled = true
 
         ),
         onNavigateToScanList = {},
