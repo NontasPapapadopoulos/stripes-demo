@@ -1,9 +1,9 @@
 package com.example.stripesdemo.data.repository
 
 import android.content.Context
-import com.example.stripesdemo.data.device.FingerScannerConnectionManager
-import com.example.stripesdemo.data.device.FingerScannerSettingsManager
-import com.example.stripesdemo.data.device.OpticonFeedbackManager
+import com.example.stripesdemo.data.device.opticon.FingerScannerConnectionManager
+import com.example.stripesdemo.data.device.opticon.FingerScannerSettingsManager
+import com.example.stripesdemo.data.device.opticon.OpticonFeedbackManager
 import com.example.stripesdemo.data.device.ScannerInterface
 import dagger.hilt.android.qualifiers.ApplicationContext
 

@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data.device
 
 import android.content.Context
+import com.example.stripesdemo.data.device.opticon.OpticonFeedbackManager
 import com.example.stripesdemo.domain.entity.enums.SensorFeedback
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow

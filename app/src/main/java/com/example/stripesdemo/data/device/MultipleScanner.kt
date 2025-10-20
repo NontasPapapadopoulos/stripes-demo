@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import com.example.stripesdemo.domain.entity.enums.Scanner
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import com.example.stripesdemo.domain.utils.throttleFirst
-import jp.casio.ht.devicelibrary.ScannerLibrary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -21,11 +20,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
-import jp.casio.ht.devicelibrary.ScannerLibrary.CONSTANT.OUTPUT.USER
 
 
-
-class MultipleScannerInterface(
+class MultipleScanner(
     val context: Context,
     settingsRepository: SettingsRepository,
     coroutineScope: CoroutineScope,
@@ -34,7 +31,6 @@ class MultipleScannerInterface(
     private val casioScanner: CasioScanner
 ) : ScannerInterface {
 
-    private val scannerLibrary = ScannerLibrary()
 
     override val enabled = MutableStateFlow(false)
 
@@ -61,36 +57,21 @@ casioScanner.scansFlow
     }
 
     override suspend fun initialize(disabledByDefault: Boolean) {
-        try {
-            scannerLibrary.outputType = USER
-            scannerLibrary.openScanner()
-            scannerLibrary.notificationVibrator =
-                ScannerLibrary.CONSTANT.NOTIFICATION.VIBRATOR_ALL_OFF
-            scannerLibrary.notificationSound =
-                ScannerLibrary.CONSTANT.NOTIFICATION.SOUND_ALL_OFF
-
-            if (disabledByDefault) {
-                disable()
-            }
-        } catch (e: Exception) {
-            println(e.message)
-        }
+        casioScanner.initialize(disabledByDefault)
     }
 
     override suspend fun cleanup() {
-        scannerLibrary.closeScanner()
+        casioScanner.close()
     }
 
     override fun enable() {
-        scannerLibrary.outputType = USER
-        scannerLibrary.triggerKeyEnable = ScannerLibrary.CONSTANT.TRIGGERKEY.ENABLE
+        casioScanner.enable()
         enabled.value = true
-
         fingerScanner.setEnabled(true)
     }
 
     override fun disable() {
-        scannerLibrary.triggerKeyEnable = ScannerLibrary.CONSTANT.TRIGGERKEY.DISABLE
+        casioScanner.disable()
         enabled.value = false
 
         fingerScanner.setEnabled(false)

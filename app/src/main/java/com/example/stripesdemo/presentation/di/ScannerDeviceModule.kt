@@ -2,7 +2,7 @@ package com.example.stripesdemo.presentation.di
 
 import android.content.Context
 import com.example.stripesdemo.data.device.CasioScanner
-import com.example.stripesdemo.data.device.MultipleScannerInterface
+import com.example.stripesdemo.data.device.MultipleScanner
 import com.example.stripesdemo.data.device.FingerScanner
 import com.example.stripesdemo.data.device.MobileScanner
 import com.example.stripesdemo.data.device.ScannerInterface
@@ -30,7 +30,7 @@ object ScannerDeviceModule {
         mobileScanner: MobileScanner,
         casioScanner: CasioScanner
     ): ScannerInterface {
-         return  MultipleScannerInterface(
+         return  MultipleScanner(
             context,
             settingsRepository,
             coroutineScope,

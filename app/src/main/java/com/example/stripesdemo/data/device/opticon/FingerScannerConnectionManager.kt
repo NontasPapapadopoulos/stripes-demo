@@ -1,4 +1,4 @@
-package com.example.stripesdemo.data.device
+package com.example.stripesdemo.data.device.opticon
 
 import android.content.BroadcastReceiver
 import android.content.Context

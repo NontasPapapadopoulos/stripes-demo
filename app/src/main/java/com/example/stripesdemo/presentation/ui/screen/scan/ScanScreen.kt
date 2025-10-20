@@ -27,11 +27,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -146,6 +153,9 @@ private fun ScanContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            val focusRequester = remember { FocusRequester() }
+            val focusManager = LocalFocusManager.current
+            val keyboardController = LocalSoftwareKeyboardController.current
 
             OutlinedTextField(
                 value = state.barcode,
@@ -154,11 +164,22 @@ private fun ScanContent(
                     Text(text = "Barcode")
                 },
                 singleLine = true,
+                keyboardActions = KeyboardActions(
+
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth()
                     .onFocusEvent {
                         setScannerEnabled(true)
                     }
+                    .focusRequester(focusRequester)
             )
+
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+                keyboardController?.hide()
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -176,9 +197,10 @@ private fun ScanContent(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (state.isSubmitEnabled)
+                        if (state.isSubmitEnabled) {
                             submitScan()
-
+                            focusManager.moveFocus(FocusDirection.Up)
+                        }
                     }
                 ),
                 singleLine = true,

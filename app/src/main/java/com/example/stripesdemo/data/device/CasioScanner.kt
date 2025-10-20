@@ -1,34 +1,13 @@
 package com.example.stripesdemo.data.device
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import com.example.stripesdemo.domain.entity.enums.Scanner
-import com.example.stripesdemo.domain.repository.SettingsRepository
-import com.example.stripesdemo.domain.utils.throttleFirst
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.casio.ht.devicelibrary.ScannerLibrary
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
 import jp.casio.ht.devicelibrary.ScannerLibrary.CONSTANT.OUTPUT.USER
 import javax.inject.Inject
 
-
 private const val CASIO_BROADCAST_ACTION = "device.common.USERMSG"
-
 
 class CasioScanner @Inject constructor(
     @ApplicationContext val context: Context
@@ -41,6 +20,35 @@ class CasioScanner @Inject constructor(
             .map { scannerLibrary.getScanResultSafe() }
 
 
+    fun initialize(disabledByDefault: Boolean) {
+        try {
+            scannerLibrary.outputType = USER
+            scannerLibrary.openScanner()
+            scannerLibrary.notificationVibrator =
+                ScannerLibrary.CONSTANT.NOTIFICATION.VIBRATOR_ALL_OFF
+            scannerLibrary.notificationSound =
+                ScannerLibrary.CONSTANT.NOTIFICATION.SOUND_ALL_OFF
+
+            if (disabledByDefault) {
+                disable()
+            }
+        } catch (e: Exception) {
+            println(e.message)
+        }
+    }
+
+    fun enable() {
+        scannerLibrary.outputType = USER
+        scannerLibrary.triggerKeyEnable = ScannerLibrary.CONSTANT.TRIGGERKEY.ENABLE
+    }
+
+    fun disable() {
+        scannerLibrary.triggerKeyEnable = ScannerLibrary.CONSTANT.TRIGGERKEY.DISABLE
+    }
+
+    fun close() {
+        scannerLibrary.closeScanner()
+    }
 }
 
 private fun ScannerLibrary.getScanResultSafe(): String? {
