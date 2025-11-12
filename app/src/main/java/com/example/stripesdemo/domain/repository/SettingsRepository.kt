@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     fun getSettingsFlow(): Flow<SettingsDomainEntity?>
     suspend fun getSettings(): SettingsDomainEntity?
+    suspend fun initSettings()
 }

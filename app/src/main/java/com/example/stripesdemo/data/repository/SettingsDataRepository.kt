@@ -20,7 +20,11 @@ class SettingsDataRepository @Inject constructor(
         return settingsDataSource.getSettings()?.toDomain()
     }
 
-
+    override suspend fun initSettings() {
+        val settings = getSettings()
+        if (settings ==  null)
+            settingsDataSource.initSettings()
+    }
 
 
 }

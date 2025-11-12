@@ -2,12 +2,14 @@ package com.example.stripesdemo.presentation.navigation
 
 
 import FingerScannerSettings
+import GscanConnection
 import Scan
 import ScanList
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.stripesdemo.presentation.ui.screen.gscan.GscanConnectionScreen
 import com.example.stripesdemo.presentation.ui.screen.scan.ScanScreen
 import com.example.stripesdemo.presentation.ui.screen.scanlist.ScanListScreen
 
@@ -26,7 +28,7 @@ fun MainNavGraph(
                     navController.navigate(ScanList)
                 },
                 navigateToFingerScanner = {
-                    navController.navigate(FingerScannerSettings)
+                    navController.navigate(GscanConnection)
                 }
             )
         }
@@ -37,9 +39,17 @@ fun MainNavGraph(
             )
         }
 
-        fingerScannerNavGraph(
-            navController = navController,
-        )
+
+
+        composable<GscanConnection> {
+            GscanConnectionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+//        fingerScannerNavGraph(
+//            navController = navController,
+//        )
 
     }
 
