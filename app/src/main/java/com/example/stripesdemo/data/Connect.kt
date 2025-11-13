@@ -230,8 +230,6 @@ class Connect @Inject constructor(
 
 
     companion object {
-        const val ACTION_BARCODE_SCANNED = "ACTION_BARCODE_SCANNED"
-        const val EXTRA_BARCODE_DATA = "BARCODE_DATA"
         private const val TAG = "GSCAN_CONNECT"
     }
 
