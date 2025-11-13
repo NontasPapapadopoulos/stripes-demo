@@ -58,7 +58,7 @@ class Connect @Inject constructor(
 
     private val scanChannel = Channel<String?>(Channel.BUFFERED)
     val scanFlow: Flow<String?> = scanChannel.receiveAsFlow()
-    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    val scope = CoroutineScope(Dispatchers.IO)
 
     fun connect(address: String) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
