@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
@@ -13,13 +14,25 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.stripesdemo.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.Arrays
+import java.util.UUID
 import javax.inject.Inject
 
 class Connect @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
 ) {
+
+    private val serviceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
+    private val writeCharUUID    = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
+    private val notifyCharUUID    = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
+    var uuidNotifyDesc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+
 
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
@@ -42,6 +55,7 @@ class Connect @Inject constructor(
     }
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
+        @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             val device = gatt.device ?: return
             val address = device.address
@@ -49,7 +63,8 @@ class Connect @Inject constructor(
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-
+                    Log.d(TAG, gatt.device.address + "state: " + newState)
+                    gatt.discoverServices()
 
                 }
             }
@@ -62,11 +77,34 @@ class Connect @Inject constructor(
             }
         }
 
+        @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "Services discovered!")
 
-            } else {
-                Log.d(TAG, "onServicesDiscovered received: $status")
+                val service = gatt.getService(serviceUUID)
+                val characteristic = service?.getCharacteristic(writeCharUUID)
+
+                if (characteristic != null) {
+                    Log.d(TAG, "Reading characteristic: $writeCharUUID")
+                    gatt.readCharacteristic(characteristic)
+                    gatt.setCharacteristicNotification(characteristic, true)
+
+                    val cccd = characteristic.getDescriptor(uuidNotifyDesc)
+                    if (cccd != null) {
+                        cccd.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        val success = gatt.writeDescriptor(cccd)
+                        Log.d(TAG, "Writing CCCD to enable notify: $success")
+                    }
+
+
+                } else {
+                    Log.e(TAG, "Characteristic not found!")
+                }
+            }
+
+            else {
+                Log.e(TAG, "Service discovery failed, status=$status")
             }
         }
 
@@ -77,7 +115,8 @@ class Connect @Inject constructor(
             status: Int
         ) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                //processReceivedData(characteristic)
+                val data = characteristic.value
+                Log.d(TAG, "Characteristic read: ${ByteUtils.toHexString(data)}")
             }
         }
 
@@ -87,7 +126,10 @@ class Connect @Inject constructor(
             value: ByteArray,
             status: Int
         ) {
-            Log.d(TAG, "onCharacteristicRead:$status")
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                val data = characteristic.value
+                Log.d(TAG, "Characteristic read: ${ByteUtils.toHexString(data)}")
+            }
 
 
         }
@@ -96,8 +138,10 @@ class Connect @Inject constructor(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic, status: Int
         ) {
-            Log.d(TAG, gatt.device.address + "-----write success----- status: " + status)
-
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                val data = characteristic.value
+                Log.d(TAG, "Characteristic read: ${ByteUtils.toHexString(data)}")
+            }
         }
 
 
@@ -106,9 +150,7 @@ class Connect @Inject constructor(
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray
         ) {
-            Log.d(TAG,
-                gatt.device.address + " -- onCharacteristicChanged: " + ByteUtils.toHexString(value)
-            )
+            Log.d(TAG, gatt.device.address + " -- onCharacteristicChanged: " + value.map { it.toInt().toChar() }.joinToString(""))
 
         }
 
