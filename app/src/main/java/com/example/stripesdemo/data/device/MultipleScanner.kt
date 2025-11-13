@@ -40,8 +40,8 @@ class MultipleScanner(
 
 
     private val scansFlow = merge(
-casioScanner.scansFlow
-            .onEach { setScanner(Scanner.Regular) },
+//casioScanner.scansFlow
+//            .onEach { setScanner(Scanner.Regular) },
         fingerScanner.inputFlow
             .onEach { setScanner(Scanner.Finger) },
         mobileScanner.scanFlow

@@ -10,27 +10,25 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import android.util.Log
-import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class Bluetooth @Inject constructor(
-    @ApplicationContext val context: Context
+class BluetoothScanner @Inject constructor(
+    private val connect: Connect,
+    @ApplicationContext val context: Context,
 ) {
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
     private var scanning = false
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-    fun startScan() {
 
+    fun startScan(uuid: String) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
             == PackageManager.PERMISSION_GRANTED) {
             bluetoothLeScanner.startScan(
-                getFilters("asd"),
+                getFilters(uuid),
                 getScanSettings(),
                 scannerCallback
             )
@@ -39,7 +37,7 @@ class Bluetooth @Inject constructor(
 
     private fun getFilters(uuidService: String):  MutableList<ScanFilter> {
         val filter = ScanFilter.Builder()
-            .setServiceUuid(ParcelUuid.fromString(uuidService.toString())) //8.0以上手机后台扫描，必须开启
+            .setServiceUuid(ParcelUuid.fromString(uuidService))
             .build()
 
         return mutableListOf(filter)
@@ -47,17 +45,18 @@ class Bluetooth @Inject constructor(
 
     private fun getScanSettings(): ScanSettings? {
         return ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
     }
 
 
+    // this is called on when scanning the QR code
     private val scannerCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
             val scanRecord = result.scanRecord!!.bytes
 
-
+            connect.connect(device.address)
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {

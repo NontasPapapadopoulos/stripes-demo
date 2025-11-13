@@ -9,12 +9,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import kotlin.uuid.Uuid
 
 
 @HiltViewModel
@@ -28,9 +25,9 @@ class GscanConnectionViewmodel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
-//    private val initBluetoothScannerFlow = initBluetoothScanner.executeAsFlow(Unit)
-//        .map { it.getOrThrow() }
-//        .catch { addError(it) }
+    private val initBluetoothScannerFlow = initBluetoothScanner.executeAsFlow(Unit)
+        .map { it.getOrThrow() }
+        .catch { addError(it) }
 
 
     override val _uiState: StateFlow<GscanConnectionState> =uuidFlow.map {
