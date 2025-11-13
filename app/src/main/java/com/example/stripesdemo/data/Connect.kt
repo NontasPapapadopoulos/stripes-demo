@@ -10,23 +10,42 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.NfcAdapter.EXTRA_DATA
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.stripesdemo.data.device.broadcastReceiverFlow
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Arrays
 import java.util.UUID
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class Connect @Inject constructor(
     @ApplicationContext val context: Context,
 ) {
+
+    // HAVE A LOOK ON THAT:
+    // https://developer.android.com/develop/connectivity/bluetooth/ble/transfer-ble-data
 
     private val serviceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
     private val writeCharUUID    = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
@@ -37,7 +56,9 @@ class Connect @Inject constructor(
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
 
-
+    private val scanChannel = Channel<String?>(Channel.BUFFERED)
+    val scanFlow: Flow<String?> = scanChannel.receiveAsFlow()
+    val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     fun connect(address: String) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
@@ -150,8 +171,13 @@ class Connect @Inject constructor(
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray
         ) {
-            Log.d(TAG, gatt.device.address + " -- onCharacteristicChanged: " + value.map { it.toInt().toChar() }.joinToString(""))
+            val barcode = value.map { it.toInt().toChar() }.joinToString("")
+            Log.d(TAG, gatt.device.address + " -- onCharacteristicChanged: " + barcode)
 
+
+            scope.launch {
+                scanChannel.send(barcode)
+            }
         }
 
         //Required for android 10
@@ -174,10 +200,7 @@ class Connect @Inject constructor(
             descriptor: BluetoothGattDescriptor, status: Int
         ) {
             val uuid = descriptor.characteristic.uuid
-            Log.d(
-                TAG,
-                "write descriptor uuid:$uuid"
-            )
+            Log.d(TAG, "write descriptor uuid:$uuid")
 
             Log.d(TAG, "set characteristic notification is completed")
 
@@ -192,10 +215,7 @@ class Connect @Inject constructor(
         ) {
             super.onDescriptorRead(gatt, descriptor, status, value)
             val uuid = descriptor.characteristic.uuid
-            Log.d(
-                TAG,
-                "read descriptor uuid:$uuid"
-            )
+            Log.d(TAG, "read descriptor uuid:$uuid")
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
 
@@ -203,16 +223,15 @@ class Connect @Inject constructor(
         }
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
-            Log.d(
-                TAG,
-                "read remoteRssi, rssi: $rssi"
-            )
+            Log.d(TAG, "read remoteRssi, rssi: $rssi")
 
         }
     }
 
 
     companion object {
+        const val ACTION_BARCODE_SCANNED = "ACTION_BARCODE_SCANNED"
+        const val EXTRA_BARCODE_DATA = "BARCODE_DATA"
         private const val TAG = "GSCAN_CONNECT"
     }
 
