@@ -40,7 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.stripesdemo.domain.entity.ConnectionStateDomainEntity
 import com.example.stripesdemo.presentation.exception.errorStringResource
 import com.example.stripesdemo.presentation.ui.composables.BackButton
 import com.example.stripesdemo.presentation.ui.theme.contentSize5
@@ -50,6 +49,7 @@ import com.example.stripesdemo.presentation.ui.theme.contentSpacing6
 import com.example.stripesdemo.presentation.ui.theme.contentSpacing8
 import com.example.stripesdemo.presentation.utils.createQrCode
 import com.example.presentation.R
+import com.example.stripesdemo.domain.entity.enums.ConnectionState
 
 
 @Composable
@@ -167,6 +167,10 @@ private fun ConnectFingerScannerContent(
                     modifier = Modifier.size(150.dp)
                 )
             }
+
+
+
+            Text(text = content.connectionState.name)
 
 
             Spacer(modifier = Modifier.weight(1f))
@@ -369,9 +373,8 @@ private fun ConnectFingerScannerScreenPreview() {
     ConnectFingerScannerContent(
         content = ConnectFingerScannerState.Content(
             code = "xxxx",
-            connectionState = ConnectionStateDomainEntity("", "", ""),
-            connectionProcess = ConnectionProcess.Connecting,
-            awaitsForScan = true
+            awaitsForScan = true,
+            connectionState = ConnectionState.DISCONNECTED
         ),
         navigateBack = {},
     )

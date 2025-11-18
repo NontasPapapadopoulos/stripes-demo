@@ -9,32 +9,22 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.nfc.NfcAdapter.EXTRA_DATA
-import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.stripesdemo.data.device.broadcastReceiverFlow
-import com.example.stripesdemo.domain.repository.SettingsRepository
+import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.util.Arrays
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,31 +38,51 @@ class Connect @Inject constructor(
     // https://developer.android.com/develop/connectivity/bluetooth/ble/transfer-ble-data
 
     private val serviceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
-    private val writeCharUUID    = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
-    private val notifyCharUUID    = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
+    private val writeCharUUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
+    private val notifyCharUUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
     var uuidNotifyDesc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
 
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
 
+//    private val connectionChannel = Channel<ConnectionState>(Channel.BUFFERED)
+//    val state: Flow<ConnectionState> = connectionChannel.receiveAsFlow()
+
+    val connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
+
     private val scanChannel = Channel<String?>(Channel.BUFFERED)
     val scanFlow: Flow<String?> = scanChannel.receiveAsFlow()
     val scope = CoroutineScope(Dispatchers.IO)
 
+    private var bluetoothGatt: BluetoothGatt? = null
+
+
     fun connect(address: String) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
             == PackageManager.PERMISSION_GRANTED) {
+
             val device = bluetoothAdapter!!.getRemoteDevice(address)
 
-            val bluetoothGatt =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && device.type == BluetoothDevice.DEVICE_TYPE_DUAL) {
-                    device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
-                } else {
-                    device.connectGatt(context, false, gattCallback)
-                }
+            if (device.type == BluetoothDevice.DEVICE_TYPE_DUAL)
+                bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+            else
+                bluetoothGatt = device.connectGatt(context, false, gattCallback)
+
         }
 
+    }
+
+    fun disconnect() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+            == PackageManager.PERMISSION_GRANTED) {
+            bluetoothGatt?.apply {
+                disconnect()
+                close()
+            }
+            connectionState.value = ConnectionState.DISCONNECTED
+
+        }
     }
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
@@ -82,6 +92,21 @@ class Connect @Inject constructor(
             val address = device.address
             //remove timeout callback
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
+
+
+            scope.launch {
+                val state = when(newState) {
+                    0 -> ConnectionState.DISCONNECTED
+                    1 -> ConnectionState.CONNECTING
+                    2 -> ConnectionState.CONNECTED
+                    3 -> ConnectionState.DISCONNECTED
+                    else -> ConnectionState.DISCONNECTED
+                }
+                connectionState.value = state
+
+            }
+
+
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.d(TAG, gatt.device.address + "state: " + newState)
@@ -221,6 +246,7 @@ class Connect @Inject constructor(
 
             }
         }
+
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
             Log.d(TAG, "read remoteRssi, rssi: $rssi")

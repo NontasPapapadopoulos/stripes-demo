@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.DoNotTouch
 import androidx.compose.material.icons.outlined.PanToolAlt
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import com.example.stripesdemo.presentation.ui.icons.Barcode
 import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
@@ -82,7 +84,8 @@ fun ScanScreen(
                 onCountChanged = { viewModel.add(ScanEvent.CountChanged(it)) },
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
                 submitScan = { viewModel.add(ScanEvent.SubmitScan) },
-                setScannerEnabled = { viewModel.add(ScanEvent.SetScannerEnabled(it)) }
+                setScannerEnabled = { viewModel.add(ScanEvent.SetScannerEnabled(it)) },
+                onDisconnect = { viewModel.add(ScanEvent.Disconnect) }
             )
         }
         ScanState.Idle -> {
@@ -104,6 +107,7 @@ private fun ScanContent(
     onBarcodeChanged: (String) -> Unit,
     onCountChanged: (String) -> Unit,
     setScannerEnabled: (Boolean) -> Unit,
+    onDisconnect: () -> Unit,
 ) {
 
     val mappings = mapOf(
@@ -125,7 +129,12 @@ private fun ScanContent(
                         onClick = onNavigateToFingerScanner
                     ) {
                         Icon(
-                            if (state.connectedDevices.isNotEmpty()) Icons.Outlined.PanToolAlt else Icons.Outlined.DoNotTouch,
+                            when (state.connectionState) {
+                                ConnectionState.DISCONNECTED -> Icons.Outlined.DoNotTouch
+                                ConnectionState.CONNECTED -> Icons.Outlined.PanToolAlt
+                                ConnectionState.CONNECTING -> Icons.Outlined.Sync
+                                ConnectionState.DISCONNECTING -> Icons.Outlined.Sync
+                            } ,
                             null
                             )
                     }
@@ -227,6 +236,13 @@ private fun ScanContent(
                 style = MaterialTheme.typography.titleSmall
             )
 
+
+            Button(
+                onClick = onDisconnect
+            ) {
+                Text("Disconnect")
+            }
+
         }
     }
 }
@@ -241,9 +257,8 @@ private fun ScanScreenPreview() {
             count = "1",
             isSubmitEnabled = true,
             numberOfScans = 3,
-            connectedDevices = listOf(),
+            connectionState = ConnectionState.CONNECTING,
             isScannerEnabled = true
-
         ),
         onNavigateToScanList = {},
         triggerCameraScan = {},
@@ -251,6 +266,7 @@ private fun ScanScreenPreview() {
         onBarcodeChanged = {},
         submitScan = {},
         onNavigateToFingerScanner = {},
-        setScannerEnabled = {}
+        setScannerEnabled = {},
+        onDisconnect = {}
     )
 }

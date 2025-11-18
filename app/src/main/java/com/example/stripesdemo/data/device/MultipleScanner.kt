@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import com.example.stripesdemo.data.Connect
-import com.example.stripesdemo.data.Connect.Companion.ACTION_BARCODE_SCANNED
-import com.example.stripesdemo.data.Connect.Companion.EXTRA_BARCODE_DATA
 import com.example.stripesdemo.domain.entity.enums.Scanner
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import com.example.stripesdemo.domain.utils.throttleFirst
@@ -47,12 +45,12 @@ class MultipleScanner(
     private val scansFlow = merge(
 //casioScanner.scansFlow
 //            .onEach { setScanner(Scanner.Regular) },
-        fingerScanner.inputFlow,
-//            .onEach { setScanner(Scanner.Finger) },
-        mobileScanner.scanFlow,
-//            .onEach { setScanner(Scanner.Camera) },
-        connect.scanFlow,
-//            .onEach { setScanner(Scanner.Finger) },
+        fingerScanner.inputFlow
+            .onEach { setScanner(Scanner.Finger) },
+        mobileScanner.scanFlow
+            .onEach { setScanner(Scanner.Camera) },
+        connect.scanFlow
+            .onEach { setScanner(Scanner.Finger) },
     )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())

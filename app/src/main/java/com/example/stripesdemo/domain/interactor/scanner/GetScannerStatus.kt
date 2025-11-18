@@ -1,13 +1,10 @@
 package com.example.stripesdemo.domain.interactor.scanner
 
-import com.example.stripesdemo.domain.interactor.FlowUseCase
 import com.example.stripesdemo.domain.IoDispatcher
+import com.example.stripesdemo.domain.interactor.FlowUseCase
+import com.example.stripesdemo.domain.repository.ScannerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
-import com.example.stripesdemo.domain.repository.ScannerRepository
 import javax.inject.Inject
 
 open class GetScannerStatus @Inject constructor(

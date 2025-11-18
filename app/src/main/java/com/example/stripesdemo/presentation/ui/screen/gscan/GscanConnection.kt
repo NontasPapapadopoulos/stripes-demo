@@ -101,6 +101,8 @@ private fun GscanConnectionContent(
 
             Text(text =content.uuid)
 
+            Text(text =content.state.name)
+
         }
 
     }

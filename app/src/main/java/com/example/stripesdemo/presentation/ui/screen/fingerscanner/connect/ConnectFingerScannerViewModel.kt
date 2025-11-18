@@ -1,7 +1,7 @@
 package com.example.stripesdemo.presentation.ui.screen.fingerscanner.connect
 
 import androidx.lifecycle.viewModelScope
-import com.example.stripesdemo.domain.entity.ConnectionStateDomainEntity
+import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectionQrCode
 import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectionState
 import com.example.stripesdemo.presentation.BlocViewModel
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -27,7 +26,6 @@ open class ConnectFingerScannerViewModel @Inject constructor(
     ): BlocViewModel<ConnectFingerScannerEvent, ConnectFingerScannerState>(){
 
 
-    private val connectionProcessFlow = MutableSharedFlow<ConnectionProcess>()
 
     private val connectionCodeFlow = getConnectionQrCode.execute(Unit)
         .map { it.getOrThrow() }
@@ -35,15 +33,6 @@ open class ConnectFingerScannerViewModel @Inject constructor(
 
     private val connectionStateFlow = getConnectionState.execute(Unit)
         .map { it.getOrThrow() }
-        .onEach {
-            it?.let {
-                when (it.state) {
-                    ConnectionState.Connected.value -> connectionProcessFlow.emit(ConnectionProcess.Successful)
-                    ConnectionState.Connecting.value -> connectionProcessFlow.emit(ConnectionProcess.Connecting)
-                    else -> connectionProcessFlow.emit(ConnectionProcess.Failed)
-                }
-            }
-        }
         .catch { addError(it) }
 
 
@@ -53,31 +42,16 @@ open class ConnectFingerScannerViewModel @Inject constructor(
 
 
     override val _uiState: StateFlow<ConnectFingerScannerState> = combine(
-        connectionProcessFlow.onStart { emit(ConnectionProcess.Idle) },
         connectionCodeFlow.onStart { emit("") },
-        connectionStateFlow.onStart { emit(null) },
-    ) { connectionProcess, connectionCode, connectionState ->
+        connectionStateFlow.onStart { emit(ConnectionState.DISCONNECTED) },
+    ) { connectionCode, connectionState  ->
 
-        when (connectionProcess) {
-            ConnectionProcess.Idle -> {
-                ConnectFingerScannerState.Content(
-                    connectionProcess = connectionProcess,
-                    awaitsForScan = true,
-                    code = connectionCode,
-                    connectionState = connectionState,
-                )
-            }
-            ConnectionProcess.Connecting -> {
-                ConnectFingerScannerState.Content(
-                    connectionProcess = connectionProcess,
-                    awaitsForScan = false,
-                    code = connectionCode,
-                    connectionState = connectionState,
-                )
-            }
-            ConnectionProcess.Successful -> ConnectFingerScannerState.ConnectionSuccessful
-            ConnectionProcess.Failed -> ConnectFingerScannerState.ConnectionFailed
-        }
+        ConnectFingerScannerState.Content(
+            awaitsForScan = true,
+            code = connectionCode,
+            connectionState = connectionState,
+        )
+
 
 
     }.stateIn(
@@ -85,9 +59,8 @@ open class ConnectFingerScannerViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(),
         initialValue = ConnectFingerScannerState.Content(
             code = "",
-            connectionProcess = ConnectionProcess.Idle,
             awaitsForScan = true,
-            connectionState = null
+            connectionState = ConnectionState.DISCONNECTED
         )
     )
 
@@ -125,10 +98,9 @@ sealed interface ConnectFingerScannerEvent {
 sealed interface ConnectFingerScannerState {
 
     data class Content(
-        val connectionProcess: ConnectionProcess,
         val code: String?,
         val awaitsForScan: Boolean,
-        val connectionState: ConnectionStateDomainEntity?,
+        val connectionState: ConnectionState,
     ): ConnectFingerScannerState
 
     object ConnectionSuccessful : ConnectFingerScannerState

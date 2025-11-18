@@ -1,37 +1,56 @@
 package com.example.stripesdemo.data
 
 import android.Manifest
+import android.app.Service
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.IBinder
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class BluetoothScanner @Inject constructor(
+@Singleton
+class BluetoothScannerService @Inject constructor(
     private val connect: Connect,
     @ApplicationContext val context: Context,
-) {
+): Service() {
+
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-    private var scanning = false
+    private var isAllowedToPair = false
 
 
     fun startScan(uuid: String) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
             == PackageManager.PERMISSION_GRANTED) {
+            isAllowedToPair = true
             bluetoothLeScanner.startScan(
                 getFilters(uuid),
                 getScanSettings(),
                 scannerCallback
             )
+        }
+    }
+
+    fun stopScan() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+            == PackageManager.PERMISSION_GRANTED) {
+
+            isAllowedToPair = false
+//            bluetoothLeScanner.stopScan(scannerCallback)
+            connect.disconnect()
+//            stopSelf()
+
         }
     }
 
@@ -56,7 +75,8 @@ class BluetoothScanner @Inject constructor(
             val device = result.device
             val scanRecord = result.scanRecord!!.bytes
 
-            connect.connect(device.address)
+            if (isAllowedToPair)
+                connect.connect(device.address)
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {
@@ -68,6 +88,10 @@ class BluetoothScanner @Inject constructor(
         override fun onScanFailed(errorCode: Int) {
             Log.e("Scan Failed", "Error Code: $errorCode")
         }
+    }
+
+    override fun onBind(p0: Intent?): IBinder? {
+        return null
     }
 
 }
