@@ -28,7 +28,7 @@ class BluetoothScannerService @Inject constructor(
 
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-    private val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
+    private var bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
     private var isAllowedToPair = false
 
 
@@ -37,6 +37,8 @@ class BluetoothScannerService @Inject constructor(
             == PackageManager.PERMISSION_GRANTED) {
             isAllowedToPair = true
             try {
+                if (bluetoothLeScanner == null)
+                    bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
                 bluetoothLeScanner.startScan(
                     getFilters(uuid),
                     getScanSettings(),
