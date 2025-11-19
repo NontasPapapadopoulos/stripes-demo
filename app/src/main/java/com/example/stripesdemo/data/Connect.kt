@@ -38,8 +38,8 @@ class Connect @Inject constructor(
     // https://developer.android.com/develop/connectivity/bluetooth/ble/transfer-ble-data
 
     private val serviceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
-    private val writeCharUUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
-    private val notifyCharUUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
+    private val readAndWriteCharacteristicUUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb") // for commands and responses.
+    private val notifyCharUUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
     private val configurationDescriptorUUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
 
@@ -92,7 +92,7 @@ class Connect @Inject constructor(
 
         val gatt = bluetoothGatt ?: return
         val service = gatt.getService(serviceUUID) ?: return
-        val characteristic = service.getCharacteristic(writeCharUUID) ?: return
+        val characteristic = service.getCharacteristic(readAndWriteCharacteristicUUID) ?: return
 
         val bytes = command.toByteArray()
 
@@ -112,26 +112,13 @@ class Connect @Inject constructor(
             val device = gatt.device ?: return
             val address = device.address
 
+            updateState(newState)
 
-            scope.launch {
-                val state = when(newState) {
-                    0 -> ConnectionState.DISCONNECTED
-                    1 -> ConnectionState.CONNECTING
-                    2 -> ConnectionState.CONNECTED
-                    3 -> ConnectionState.DISCONNECTED
-                    else -> ConnectionState.DISCONNECTED
-                }
-                connectionState.value = state
-
-            }
-
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.d(TAG, gatt.device.address + "state: " + newState)
-                    gatt.discoverServices()
-
-                }
+            if (status == BluetoothGatt.GATT_SUCCESS &&
+                newState == BluetoothProfile.STATE_CONNECTED)
+            {
+                Log.d(TAG, gatt.device.address + "state: " + newState)
+                gatt.discoverServices()
             }
         }
 
@@ -156,18 +143,18 @@ class Connect @Inject constructor(
                 return
             }
 
-            val writeChar = service.getCharacteristic(writeCharUUID)
-            if (writeChar == null) {
+            val notifyChar = service.getCharacteristic(notifyCharUUID)
+            if (notifyChar == null) {
                 Log.e(TAG, "Write characteristic FFF1 not found")
             }
 
             displayServices(gatt.services)
 
-            Log.d(TAG, "Reading characteristic: $writeCharUUID")
-            gatt.readCharacteristic(writeChar)
-            gatt.setCharacteristicNotification(writeChar, true)
+            Log.d(TAG, "Reading characteristic: $readAndWriteCharacteristicUUID")
+            gatt.readCharacteristic(notifyChar)
+            gatt.setCharacteristicNotification(notifyChar, true)
 
-            val clientCharacteristicConfigurationDescriptor = writeChar.getDescriptor(configurationDescriptorUUID)
+            val clientCharacteristicConfigurationDescriptor = notifyChar.getDescriptor(configurationDescriptorUUID)
             if (clientCharacteristicConfigurationDescriptor != null) {
                 clientCharacteristicConfigurationDescriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                 val success = gatt.writeDescriptor(clientCharacteristicConfigurationDescriptor)
@@ -275,6 +262,7 @@ class Connect @Inject constructor(
             Log.d(TAG, "read remoteRssi, rssi: $rssi")
 
         }
+
     }
 
 
@@ -310,6 +298,17 @@ class Connect @Inject constructor(
                 Log.d(TAG, "   └─ Properties: ${propList.joinToString(", ")}")
             }
         }
+    }
+
+    private fun updateState(newState: Int) {
+        val state = when(newState) {
+            0 -> ConnectionState.DISCONNECTED
+            1 -> ConnectionState.CONNECTING
+            2 -> ConnectionState.CONNECTED
+            3 -> ConnectionState.DISCONNECTED
+            else -> ConnectionState.DISCONNECTED
+        }
+        connectionState.value = state
     }
 
     private fun lookupServiceName(uuid: UUID): String {
