@@ -13,7 +13,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -76,6 +78,7 @@ class Connect @Inject constructor(
     fun disconnect() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
             == PackageManager.PERMISSION_GRANTED) {
+
             bluetoothGatt?.apply {
                 disconnect()
                 close()
@@ -83,6 +86,28 @@ class Connect @Inject constructor(
             connectionState.value = ConnectionState.DISCONNECTED
 
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun setCommand(command: String) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
+
+        val gatt = bluetoothGatt ?: return
+        val service = gatt.getService(serviceUUID) ?: return
+        val characteristic = service.getCharacteristic(writeCharUUID) ?: return
+
+        val bytes = command.toByteArray()
+
+        val result = gatt.writeCharacteristic(
+            characteristic,
+            bytes,
+            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        )
+
+        Log.d("BLE", "Write result = $result")
+
     }
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {

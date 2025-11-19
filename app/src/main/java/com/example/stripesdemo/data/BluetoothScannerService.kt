@@ -10,10 +10,12 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.IBinder
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.stripesdemo.data.exception.BluetoothIsOffException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,11 +36,18 @@ class BluetoothScannerService @Inject constructor(
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
             == PackageManager.PERMISSION_GRANTED) {
             isAllowedToPair = true
-            bluetoothLeScanner.startScan(
-                getFilters(uuid),
-                getScanSettings(),
-                scannerCallback
-            )
+            try {
+                bluetoothLeScanner.startScan(
+                    getFilters(uuid),
+                    getScanSettings(),
+                    scannerCallback
+                )
+            } catch (e: Exception) {
+                if (e.message == "BT Adapter is not turned ON") {
+                    throw BluetoothIsOffException()
+                }
+            }
+
         }
     }
 
@@ -51,6 +60,12 @@ class BluetoothScannerService @Inject constructor(
             connect.disconnect()
 //            stopSelf()
 
+        }
+    }
+
+    fun provideCommand(command: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            connect.setCommand(command)
         }
     }
 
