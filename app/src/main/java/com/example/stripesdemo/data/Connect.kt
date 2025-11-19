@@ -17,6 +17,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -49,8 +50,6 @@ class Connect @Inject constructor(
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
 
-//    private val connectionChannel = Channel<ConnectionState>(Channel.BUFFERED)
-//    val state: Flow<ConnectionState> = connectionChannel.receiveAsFlow()
 
     val connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
 
@@ -116,8 +115,6 @@ class Connect @Inject constructor(
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             val device = gatt.device ?: return
             val address = device.address
-            //remove timeout callback
-            //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
 
 
             scope.launch {
