@@ -10,14 +10,11 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -44,10 +40,10 @@ class Connect @Inject constructor(
     private val serviceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
     private val writeCharUUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
     private val notifyCharUUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
-    var uuidNotifyDesc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+    private val configurationDescriptorUUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
 
-    val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
 
 
@@ -171,10 +167,10 @@ class Connect @Inject constructor(
             gatt.readCharacteristic(writeChar)
             gatt.setCharacteristicNotification(writeChar, true)
 
-            val cccd = writeChar.getDescriptor(uuidNotifyDesc)
-            if (cccd != null) {
-                cccd.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                val success = gatt.writeDescriptor(cccd)
+            val clientCharacteristicConfigurationDescriptor = writeChar.getDescriptor(configurationDescriptorUUID)
+            if (clientCharacteristicConfigurationDescriptor != null) {
+                clientCharacteristicConfigurationDescriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                val success = gatt.writeDescriptor(clientCharacteristicConfigurationDescriptor)
                 Log.d(TAG, "Writing CCCD to enable notify: $success")
             }
 
