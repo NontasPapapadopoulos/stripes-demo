@@ -1,7 +1,7 @@
 package com.example.stripesdemo.presentation.ui.screen.scan
 
 import androidx.lifecycle.viewModelScope
-import com.example.stripesdemo.domain.entity.DeviceDomainEntity
+import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import com.example.stripesdemo.domain.entity.enums.SensorFeedback
 import com.example.stripesdemo.domain.interactor.scan.GetNumberOfScans
 import com.example.stripesdemo.domain.interactor.scan.GetOpenScanFlow
@@ -20,7 +20,9 @@ import com.example.stripesdemo.domain.interactor.scanner.GetScannerStatus
 import com.example.stripesdemo.domain.interactor.scanner.SendSensorFeedback
 import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
+import com.example.stripesdemo.domain.interactor.scanner.finger.Disconnect
 import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectedDevices
+import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectionState
 import com.example.stripesdemo.domain.utils.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,9 +41,11 @@ class ScanViewModel @Inject constructor(
     private val triggerCameraScan: TriggerCameraScan,
     private val submitScan: SubmitScan,
     getConnectedDevices: GetConnectedDevices,
+    getConnectionStatus: GetConnectionState,
     getNumberOfScans: GetNumberOfScans,
     private val sendSensorFeedback: SendSensorFeedback,
-    private val getScannerStatus: GetScannerStatus
+    private val getScannerStatus: GetScannerStatus,
+    private val disconnect: Disconnect
 ): BlocViewModel<ScanEvent, ScanState>() {
 
     private val openScanFlow = getOpenScanFlow.execute(Unit)
@@ -64,7 +68,7 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
-    private val getConnectedDevicesFlow = getConnectedDevices.execute(Unit)
+    private val fingerScannerConnectionFlow = getConnectionStatus.execute(Unit)
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
@@ -82,16 +86,16 @@ class ScanViewModel @Inject constructor(
         ),
         countFlow.onStart { emit("") },
         numberOfScansFlow,
-        getConnectedDevicesFlow.onStart { emit(listOf()) },
-        scannerStatusFlow.onStart { emit(true) }
-    ) { openScan, barcode, count, numberOfScans, connectedDevices, isScannerEnabled ->
+        fingerScannerConnectionFlow.onStart { emit(ConnectionState.DISCONNECTED) },
+        scannerStatusFlow.onStart { emit(false) }
+    ) { openScan, barcode, count, numberOfScans, isFingerScannerConnected, isScannerEnabled ->
 
         ScanState.Content(
             barcode = barcode,
             count = count,
             isSubmitEnabled = barcode.isNotEmpty() && count.isNotEmpty(),
             numberOfScans = numberOfScans,
-            connectedDevices = connectedDevices,
+            connectionState = isFingerScannerConnected,
             isScannerEnabled = isScannerEnabled
         )
 
@@ -143,6 +147,13 @@ class ScanViewModel @Inject constructor(
         }
 
 
+        on(ScanEvent.Disconnect::class) {
+            disconnect.execute(Unit).fold(
+                onSuccess = {},
+                onFailure = { addError(it) }
+            )
+        }
+
     }
 
 
@@ -163,7 +174,7 @@ sealed interface ScanState {
         val count: String,
         val isSubmitEnabled: Boolean,
         val numberOfScans: Int,
-        val connectedDevices: List<DeviceDomainEntity>,
+        val connectionState: ConnectionState,
         val isScannerEnabled: Boolean
     ): ScanState
 
@@ -178,4 +189,5 @@ sealed interface ScanEvent {
     data class CountChanged(val value: String) : ScanEvent
     object TriggerCameraScan: ScanEvent
     object SubmitScan: ScanEvent
+    object Disconnect: ScanEvent
 }

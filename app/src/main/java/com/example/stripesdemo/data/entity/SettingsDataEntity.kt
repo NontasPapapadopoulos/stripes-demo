@@ -11,4 +11,5 @@ data class SettingsDataEntity(
     val dummyPrimaryKey: Int = 0,
     val scansDelay: Long,
     @ColumnInfo(defaultValue = "200") val feedbackDelay: Long,
+    val connectionUUID: String,
 )

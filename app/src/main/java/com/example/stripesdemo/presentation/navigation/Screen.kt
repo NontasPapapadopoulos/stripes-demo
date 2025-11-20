@@ -19,3 +19,8 @@ object ConfigureFingerScanner
 
 @Serializable
 object ConnectFingerScanner
+
+
+
+@Serializable
+object GscanConnection

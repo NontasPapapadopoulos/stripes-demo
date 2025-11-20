@@ -1,21 +1,23 @@
 package com.example.stripesdemo.domain.interactor.scanner.finger
 
+import com.example.stripesdemo.data.BluetoothScannerService
 import com.example.stripesdemo.data.Connect
 import com.example.stripesdemo.domain.IoDispatcher
-import com.example.stripesdemo.domain.entity.enums.ConnectionState
-import com.example.stripesdemo.domain.interactor.FlowUseCase
+import com.example.stripesdemo.domain.interactor.SuspendUseCase
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import com.example.stripesdemo.domain.repository.ScannerRepository
 import javax.inject.Inject
 
-open class GetConnectionState @Inject constructor(
+open class Disconnect @Inject constructor(
     private val scannerRepository: ScannerRepository,
     private val connect: Connect,
+    private val bluetoothScannerService: BluetoothScannerService,
     @IoDispatcher private val flowDispatcher: CoroutineDispatcher,
-): FlowUseCase<ConnectionState, Unit>(flowDispatcher) {
+) : SuspendUseCase<Unit, Unit>(flowDispatcher) {
 
-    override fun invoke(params: Unit): Flow<ConnectionState> {
-        return connect.connectionState
+    override suspend fun invoke(params: Unit) {
+        bluetoothScannerService.stopScan()
+
     }
+
 }

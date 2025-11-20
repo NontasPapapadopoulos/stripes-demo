@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.example.stripesdemo.data.Connect
 import com.example.stripesdemo.domain.entity.enums.Scanner
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import com.example.stripesdemo.domain.utils.throttleFirst
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
@@ -28,7 +30,8 @@ class MultipleScanner(
     coroutineScope: CoroutineScope,
     private val fingerScanner: FingerScanner,
     private val mobileScanner: MobileScanner,
-    private val casioScanner: CasioScanner
+    private val casioScanner: CasioScanner,
+    private val connect: Connect
 ) : ScannerInterface {
 
 
@@ -40,12 +43,14 @@ class MultipleScanner(
 
 
     private val scansFlow = merge(
-casioScanner.scansFlow
-            .onEach { setScanner(Scanner.Regular) },
+//casioScanner.scansFlow
+//            .onEach { setScanner(Scanner.Regular) },
         fingerScanner.inputFlow
             .onEach { setScanner(Scanner.Finger) },
         mobileScanner.scanFlow
-            .onEach { setScanner(Scanner.Camera) }
+            .onEach { setScanner(Scanner.Camera) },
+        connect.scanFlow
+            .onEach { setScanner(Scanner.Finger) },
     )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())
@@ -68,6 +73,7 @@ casioScanner.scansFlow
         casioScanner.enable()
         enabled.value = true
         fingerScanner.setEnabled(true)
+        connect
     }
 
     override fun disable() {

@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import com.example.stripesdemo.data.entity.SettingsDataEntity
@@ -14,5 +15,9 @@ interface ScannerSettingsDao {
 
     @Query("SELECT * FROM settings LIMIT 1")
     suspend fun getSettings(): SettingsDataEntity?
+
+
+    @Insert
+    suspend fun put(settings: SettingsDataEntity)
 
 }
