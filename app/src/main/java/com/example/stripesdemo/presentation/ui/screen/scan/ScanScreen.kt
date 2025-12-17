@@ -85,7 +85,8 @@ fun ScanScreen(
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
                 submitScan = { viewModel.add(ScanEvent.SubmitScan) },
                 setScannerEnabled = { viewModel.add(ScanEvent.SetScannerEnabled(it)) },
-                onDisconnect = { viewModel.add(ScanEvent.Disconnect) }
+                onDisconnect = { viewModel.add(ScanEvent.Disconnect) },
+                performCameraScan = { viewModel.add(ScanEvent.PerformCameraScan(it)) }
             )
         }
         ScanState.Idle -> {
@@ -103,6 +104,7 @@ private fun ScanContent(
     onNavigateToScanList: () -> Unit,
     onNavigateToFingerScanner: () -> Unit,
     triggerCameraScan: () -> Unit,
+    performCameraScan: (String) -> Unit,
     submitScan: () -> Unit,
     onBarcodeChanged: (String) -> Unit,
     onCountChanged: (String) -> Unit,
@@ -125,19 +127,19 @@ private fun ScanContent(
                     Text(text = "Scan")
                 },
                 actions = {
-                    IconButton(
-                        onClick = onNavigateToFingerScanner
-                    ) {
-                        Icon(
-                            when (state.connectionState) {
-                                ConnectionState.DISCONNECTED -> Icons.Outlined.DoNotTouch
-                                ConnectionState.CONNECTED -> Icons.Outlined.PanToolAlt
-                                ConnectionState.CONNECTING -> Icons.Outlined.Sync
-                                ConnectionState.DISCONNECTING -> Icons.Outlined.Sync
-                            } ,
-                            null
-                            )
-                    }
+//                    IconButton(
+//                        onClick = onNavigateToFingerScanner
+//                    ) {
+//                        Icon(
+//                            when (state.connectionState) {
+//                                ConnectionState.DISCONNECTED -> Icons.Outlined.DoNotTouch
+//                                ConnectionState.CONNECTED -> Icons.Outlined.PanToolAlt
+//                                ConnectionState.CONNECTING -> Icons.Outlined.Sync
+//                                ConnectionState.DISCONNECTING -> Icons.Outlined.Sync
+//                            } ,
+//                            null
+//                            )
+//                    }
 
 
                     IconButton(onClick = onNavigateToScanList) {
@@ -148,7 +150,7 @@ private fun ScanContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = triggerCameraScan,
+                onClick = {},
             ) {
                 Icon(StripesIcons.Barcode,null)
             }
@@ -267,6 +269,7 @@ private fun ScanScreenPreview() {
         submitScan = {},
         onNavigateToFingerScanner = {},
         setScannerEnabled = {},
-        onDisconnect = {}
+        onDisconnect = {},
+        performCameraScan = {}
     )
 }
