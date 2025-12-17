@@ -3,6 +3,7 @@ package com.example.stripesdemo.presentation.ui.screen.scan
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,6 +53,7 @@ import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
 import com.example.stripesdemo.presentation.exception.errorStringResource
 import com.example.stripesdemo.presentation.ui.composables.mapKeys
+import com.example.stripesdemo.presentation.ui.composables.scandit.SparkScanComponent
 
 
 @Composable
@@ -85,7 +87,8 @@ fun ScanScreen(
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
                 submitScan = { viewModel.add(ScanEvent.SubmitScan) },
                 setScannerEnabled = { viewModel.add(ScanEvent.SetScannerEnabled(it)) },
-                onDisconnect = { viewModel.add(ScanEvent.Disconnect) }
+                onDisconnect = { viewModel.add(ScanEvent.Disconnect) },
+                performCameraScan = { viewModel.add(ScanEvent.PerformCameraScan(it)) }
             )
         }
         ScanState.Idle -> {
@@ -108,6 +111,7 @@ private fun ScanContent(
     onCountChanged: (String) -> Unit,
     setScannerEnabled: (Boolean) -> Unit,
     onDisconnect: () -> Unit,
+    performCameraScan: (String) -> Unit
 ) {
 
     val mappings = mapOf(
@@ -148,7 +152,7 @@ private fun ScanContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = triggerCameraScan,
+                onClick = {},
             ) {
                 Icon(StripesIcons.Barcode,null)
             }
@@ -237,11 +241,14 @@ private fun ScanContent(
             )
 
 
-            Button(
-                onClick = onDisconnect
-            ) {
-                Text("Disconnect")
-            }
+            SparkScanComponent(
+                padding = PaddingValues(0.dp),
+                onValidBarcodeScanned = { barcode, data ->
+                    barcode.data?.let {
+                        performCameraScan(it)
+                    }
+                }
+            )
 
         }
     }
@@ -267,6 +274,7 @@ private fun ScanScreenPreview() {
         submitScan = {},
         onNavigateToFingerScanner = {},
         setScannerEnabled = {},
-        onDisconnect = {}
+        onDisconnect = {},
+        performCameraScan = {}
     )
 }

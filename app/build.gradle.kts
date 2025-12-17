@@ -1,3 +1,6 @@
+import java.util.Properties
+import kotlin.apply
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +22,24 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+
+        val localProperties = Properties().apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) {
+                load(file.inputStream())
+            }
+        }
+
+        val scanditLicenseKey: String =
+            localProperties.getProperty("SCANDIT_LICENSE_KEY") ?: ""
+
+        buildConfigField(
+            "String",
+            "SCANDIT_LICENSE_KEY",
+            "\"$scanditLicenseKey\""
+        )
+
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -39,6 +60,7 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 
@@ -110,5 +132,8 @@ dependencies {
 
     // lifecycle
     implementation(libs.lifecycle.process)
+
+    api("com.scandit.datacapture:core:8.0.0")
+    api("com.scandit.datacapture:barcode:8.0.0")
 
 }
