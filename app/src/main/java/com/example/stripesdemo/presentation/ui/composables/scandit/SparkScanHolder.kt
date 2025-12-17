@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,7 +55,9 @@ private fun rememberSparkScanView(
     // Creating the instance of SparkScanView. The instance will be automatically added
     // to the container.
     val sparkScanView = remember(sparkScan, parentView, dataCaptureContext) {
-        SparkScanView.newInstance(parentView, dataCaptureContext, sparkScan, sparkScanViewSettings)
+        SparkScanView.newInstance(parentView, dataCaptureContext, sparkScan, sparkScanViewSettings).apply {
+            triggerButtonVisible = false
+        }
     }
 
     return sparkScanView
@@ -114,7 +117,8 @@ private fun Barcode?.isValid(): Boolean {
 @Composable
 internal fun SparkScanComponent(
     padding: PaddingValues,
-    onValidBarcodeScanned: (barcode: Barcode, data: FrameData?) -> Unit
+    onValidBarcodeScanned: (barcode: Barcode, data: FrameData?) -> Unit,
+    enableCamera: Boolean
 ) {
     val context = LocalContext.current
 
@@ -136,7 +140,7 @@ internal fun SparkScanComponent(
                     SparkScanBarcodeFeedback.Success()
                 } else {
                     SparkScanBarcodeFeedback.Error(
-                        context.getString(R.string.wrong_barcode),
+                        context.getString(R.string.barcode),
                         TimeInterval.seconds(60f)
                     )
                 }
@@ -177,6 +181,14 @@ internal fun SparkScanComponent(
         onPauseOrDispose {
             sparkScanView.onPause()
         }
+    }
+
+    LaunchedEffect(enableCamera) {
+        if (enableCamera) {
+            sparkScanView.onResume()
+            sparkScanView.startScanning()
+        }
+
     }
 
     AndroidView(

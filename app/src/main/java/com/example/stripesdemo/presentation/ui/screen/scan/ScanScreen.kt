@@ -13,9 +13,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.outlined.DoNotTouch
-import androidx.compose.material.icons.outlined.PanToolAlt
-import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -54,7 +51,6 @@ import com.example.stripesdemo.presentation.ui.icons.Barcode
 import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
 import com.example.stripesdemo.presentation.exception.errorStringResource
-import com.example.stripesdemo.presentation.ui.composables.SparkScanComponent
 import com.example.stripesdemo.presentation.ui.composables.mapKeys
 import com.example.stripesdemo.presentation.ui.composables.scandit.SparkScanComponent
 
@@ -124,7 +120,7 @@ private fun ScanContent(
         }
     )
 
-    var showCamera by remember { mutableStateOf(false) }
+    var enableCamera by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.mapKeys(mappings = mappings),
@@ -142,7 +138,7 @@ private fun ScanContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showCamera = !showCamera },
+                onClick = { enableCamera = !enableCamera },
             ) {
                 Icon(StripesIcons.Barcode,null)
             }
@@ -237,7 +233,8 @@ private fun ScanContent(
                     barcode.data?.let {
                         performCameraScan(it)
                     }
-                }
+                },
+                enableCamera = enableCamera
             )
 
         }
