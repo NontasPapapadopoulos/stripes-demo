@@ -176,12 +176,12 @@ internal fun SparkScanComponent(
         }
     }
 
-    LifecycleResumeEffect(sparkScanView) {
-        sparkScanView.onResume()
-        onPauseOrDispose {
-            sparkScanView.onPause()
-        }
-    }
+//    LifecycleResumeEffect(sparkScanView) {
+//        sparkScanView.onResume()
+//        onPauseOrDispose {
+//            sparkScanView.onPause()
+//        }
+//    }
 
     LaunchedEffect(enableCamera) {
         if (enableCamera) {
