@@ -53,15 +53,14 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
+
     private val cameraScannerInput = MutableSharedFlow<String>()
 
-
-    private val scannerInputFlow =
-        merge(
-            getScannerInput.execute(Unit)
+    private val scannerInputFlow = merge(
+        getScannerInput.execute(Unit)
         .map { it.getOrThrow() },
-            cameraScannerInput
-        )
+        cameraScannerInput
+    )
         .catch { addError(it) }
         .onEach {
             onState<ScanState.Content> { state ->
@@ -199,8 +198,8 @@ sealed interface ScanEvent {
     data class SetScannerEnabled(val isEnabled: Boolean) : ScanEvent
     data class BarcodeChanged(val value: String) : ScanEvent
     data class CountChanged(val value: String) : ScanEvent
-    data class PerformCameraScan(val barcode: String): ScanEvent
     object TriggerCameraScan: ScanEvent
     object SubmitScan: ScanEvent
     object Disconnect: ScanEvent
+    data class PerformCameraScan(val barcode: String): ScanEvent
 }

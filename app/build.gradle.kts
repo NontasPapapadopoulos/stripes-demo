@@ -39,10 +39,8 @@ android {
             "\"$scanditLicenseKey\""
         )
 
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-
-
     }
 
     buildTypes {
@@ -63,7 +61,6 @@ android {
     }
     buildFeatures {
         buildConfig = true
-
         compose = true
     }
 
@@ -136,9 +133,7 @@ dependencies {
     // lifecycle
     implementation(libs.lifecycle.process)
 
-
-    // Scandit
-    implementation(files("src/main/libs/ScanditCaptureCore.aar"))
-    implementation(files("src/main/libs/ScanditBarcodeCapture.aar"))
+    api("com.scandit.datacapture:core:8.0.0")
+    api("com.scandit.datacapture:barcode:8.0.0")
 
 }

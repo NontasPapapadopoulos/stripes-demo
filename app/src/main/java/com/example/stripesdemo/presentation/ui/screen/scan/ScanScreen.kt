@@ -56,6 +56,7 @@ import com.example.stripesdemo.presentation.ui.icons.StripesIcons
 import com.example.stripesdemo.presentation.exception.errorStringResource
 import com.example.stripesdemo.presentation.ui.composables.SparkScanComponent
 import com.example.stripesdemo.presentation.ui.composables.mapKeys
+import com.example.stripesdemo.presentation.ui.composables.scandit.SparkScanComponent
 
 
 @Composable
@@ -108,12 +109,12 @@ private fun ScanContent(
     onNavigateToScanList: () -> Unit,
     onNavigateToFingerScanner: () -> Unit,
     triggerCameraScan: () -> Unit,
-    performCameraScan: (String) -> Unit,
     submitScan: () -> Unit,
     onBarcodeChanged: (String) -> Unit,
     onCountChanged: (String) -> Unit,
     setScannerEnabled: (Boolean) -> Unit,
     onDisconnect: () -> Unit,
+    performCameraScan: (String) -> Unit
 ) {
 
     val mappings = mapOf(
@@ -230,17 +231,16 @@ private fun ScanContent(
             )
 
 
-
+            SparkScanComponent(
+                padding = PaddingValues(0.dp),
+                onValidBarcodeScanned = { barcode, data ->
+                    barcode.data?.let {
+                        performCameraScan(it)
+                    }
+                }
+            )
 
         }
-
-        SparkScanComponent(
-            padding = PaddingValues(0.dp),
-            onValidBarcodeScanned = { barcode, data ->
-                performCameraScan(barcode.data!!)
-            },
-            showCamera = showCamera
-        )
     }
 }
 
