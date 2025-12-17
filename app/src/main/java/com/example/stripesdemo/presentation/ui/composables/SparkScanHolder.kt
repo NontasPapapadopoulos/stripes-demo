@@ -16,8 +16,11 @@ package com.example.stripesdemo.presentation.ui.composables
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,19 +52,15 @@ private fun rememberSparkScanView(
 
     // You can customize the SparkScanView using SparkScanViewSettings.
     val sparkScanViewSettings = remember {
-        SparkScanViewSettings().apply {
-            soundEnabled = false
-        }
+        SparkScanViewSettings()
     }
 
     // Creating the instance of SparkScanView. The instance will be automatically added
     // to the container.
     val sparkScanView = remember(sparkScan, parentView, dataCaptureContext) {
-        SparkScanView.newInstance(parentView, dataCaptureContext, sparkScan, sparkScanViewSettings)
-            .apply {
-                triggerButtonVisible = true
-//                scanningBehaviorButtonVisible= true
-            }
+        SparkScanView.newInstance(parentView, dataCaptureContext, sparkScan, sparkScanViewSettings).apply {
+            triggerButtonVisible = false
+        }
     }
 
     return sparkScanView
@@ -115,13 +114,14 @@ private fun rememberSparkScan(
 }
 
 private fun Barcode?.isValid(): Boolean {
-    return this?.data != null && this.data != "123456789"
+    return this?.data != null
 }
 
 @Composable
 internal fun SparkScanComponent(
     padding: PaddingValues,
-    onValidBarcodeScanned: (barcode: Barcode, data: FrameData?) -> Unit
+    onValidBarcodeScanned: (barcode: Barcode, data: FrameData?) -> Unit,
+    showCamera: Boolean
 ) {
     val context = LocalContext.current
 
@@ -168,7 +168,6 @@ internal fun SparkScanComponent(
                 val barcode = session.newlyRecognizedBarcode
 
                 if (barcode?.isValid() == true) {
-                    barcode.data
                     onValidBarcodeScanned(barcode, data)
                 }
             }
@@ -187,7 +186,13 @@ internal fun SparkScanComponent(
         }
     }
 
-
+//    LaunchedEffect(showCamera) {
+//        if (showCamera) {
+//            sparkScanView.onResume()
+//            sparkScanView.startScanning()
+//
+//        }
+//    }
 
     AndroidView(
         modifier = Modifier.padding(padding),
@@ -195,15 +200,4 @@ internal fun SparkScanComponent(
             sparkScanParent
         }
     )
-
-//    Button(
-//        onClick = {
-//            sparkScanView.post() {
-//                sparkScanView.startScanning()
-//            }
-//        },
-//        modifier = Modifier
-//    ) {
-//        Text("click")
-//    }
 }

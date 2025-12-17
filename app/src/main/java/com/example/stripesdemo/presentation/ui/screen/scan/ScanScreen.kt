@@ -29,7 +29,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -121,6 +123,8 @@ private fun ScanContent(
         }
     )
 
+    var showCamera by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.mapKeys(mappings = mappings),
         topBar = {
@@ -129,21 +133,6 @@ private fun ScanContent(
                     Text(text = "Scan")
                 },
                 actions = {
-//                    IconButton(
-//                        onClick = onNavigateToFingerScanner
-//                    ) {
-//                        Icon(
-//                            when (state.connectionState) {
-//                                ConnectionState.DISCONNECTED -> Icons.Outlined.DoNotTouch
-//                                ConnectionState.CONNECTED -> Icons.Outlined.PanToolAlt
-//                                ConnectionState.CONNECTING -> Icons.Outlined.Sync
-//                                ConnectionState.DISCONNECTING -> Icons.Outlined.Sync
-//                            } ,
-//                            null
-//                            )
-//                    }
-
-
                     IconButton(onClick = onNavigateToScanList) {
                         Icon(Icons.Default.List, null)
                     }
@@ -152,7 +141,7 @@ private fun ScanContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = { showCamera = !showCamera },
             ) {
                 Icon(StripesIcons.Barcode,null)
             }
@@ -242,14 +231,16 @@ private fun ScanContent(
 
 
 
-            SparkScanComponent(
-                padding = PaddingValues(0.dp),
-                onValidBarcodeScanned = { barcode, data ->
-                    performCameraScan(barcode.data!!)
-                }
-            )
 
         }
+
+        SparkScanComponent(
+            padding = PaddingValues(0.dp),
+            onValidBarcodeScanned = { barcode, data ->
+                performCameraScan(barcode.data!!)
+            },
+            showCamera = showCamera
+        )
     }
 }
 
