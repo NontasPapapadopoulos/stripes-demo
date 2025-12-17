@@ -15,6 +15,8 @@ package com.example.stripesdemo.presentation.ui.composables
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.example.presentation.BuildConfig
+import com.scandit.datacapture.core.capture.DataCaptureContext
 
 @Composable
 internal fun rememberDataCaptureContext(): DataCaptureContext {

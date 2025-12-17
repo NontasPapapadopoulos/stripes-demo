@@ -22,8 +22,6 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
 
         val localProperties = Properties().apply {
             val file = rootProject.file("local.properties")
@@ -40,6 +38,10 @@ android {
             "SCANDIT_LICENSE_KEY",
             "\"$scanditLicenseKey\""
         )
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
 
     }
 
@@ -60,6 +62,8 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
+        buildConfig = true
+
         compose = true
     }
 
