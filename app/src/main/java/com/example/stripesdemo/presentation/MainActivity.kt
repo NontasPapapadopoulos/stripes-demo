@@ -37,8 +37,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        checkBluetoothPermissions()
-
+        checkCameraPermissions()
         initSettings()
 
         setContent {
@@ -58,24 +57,16 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private val bluetoothPermissions = arrayOf(
-        Manifest.permission.BLUETOOTH_SCAN,
-        Manifest.permission.BLUETOOTH_CONNECT,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    )
 
-    private fun checkBluetoothPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val missingPermissions = bluetoothPermissions.filter {
-                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-            }
-            if (missingPermissions.isNotEmpty()) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    missingPermissions.toTypedArray(),
-                    1001
-                )
-            }
+    private fun checkCameraPermissions() {
+        val cameraPermission = Manifest.permission.CAMERA
+        val hasPermission = ContextCompat.checkSelfPermission(this, cameraPermission) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(cameraPermission),
+                1001
+            )
         }
     }
 }

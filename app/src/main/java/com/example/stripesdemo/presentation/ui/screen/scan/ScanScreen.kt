@@ -3,6 +3,7 @@ package com.example.stripesdemo.presentation.ui.screen.scan
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +52,7 @@ import com.example.stripesdemo.presentation.ui.icons.Barcode
 import com.example.stripesdemo.presentation.ui.composables.LoadingBox
 import com.example.stripesdemo.presentation.ui.icons.StripesIcons
 import com.example.stripesdemo.presentation.exception.errorStringResource
+import com.example.stripesdemo.presentation.ui.composables.SparkScanComponent
 import com.example.stripesdemo.presentation.ui.composables.mapKeys
 
 
@@ -239,11 +241,13 @@ private fun ScanContent(
             )
 
 
-            Button(
-                onClick = onDisconnect
-            ) {
-                Text("Disconnect")
-            }
+
+            SparkScanComponent(
+                padding = PaddingValues(0.dp),
+                onValidBarcodeScanned = { barcode, data ->
+                    performCameraScan(barcode.data!!)
+                }
+            )
 
         }
     }
