@@ -1,5 +1,6 @@
 package com.example.stripesdemo.presentation.ui.screen.scan
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.stripesdemo.domain.entity.enums.ConnectionState
 import com.example.stripesdemo.domain.entity.enums.SensorFeedback
@@ -52,8 +53,14 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
-    private val scannerInputFlow = getScannerInput.execute(Unit)
-        .map { it.getOrThrow() }
+
+    private val cameraScannerInput = MutableSharedFlow<String>()
+
+    private val scannerInputFlow = merge(
+        getScannerInput.execute(Unit)
+        .map { it.getOrThrow() },
+        cameraScannerInput
+    )
         .catch { addError(it) }
         .onEach {
             onState<ScanState.Content> { state ->
@@ -154,6 +161,10 @@ class ScanViewModel @Inject constructor(
             )
         }
 
+        on(ScanEvent.PerformCameraScan::class) {
+            cameraScannerInput.emit(it.barcode)
+        }
+
     }
 
 
@@ -190,4 +201,5 @@ sealed interface ScanEvent {
     object TriggerCameraScan: ScanEvent
     object SubmitScan: ScanEvent
     object Disconnect: ScanEvent
+    data class PerformCameraScan(val barcode: String): ScanEvent
 }

@@ -43,10 +43,10 @@ class ScannerDataRepository @Inject constructor(
 
 
     override suspend fun sendFeedback(sensorFeedback: SensorFeedback) {
-        if (getDevice() == Scanner.Regular || getDevice() == Scanner.Camera)
+//        if (getDevice() == Scanner.Regular || getDevice() == Scanner.Camera)
             sensorFeedbackManager.sendFeedback(sensorFeedback)
-        else
-            opticonFeedbackManager.sendFeedback(sensorFeedback)
+//        else
+//            opticonFeedbackManager.sendFeedback(sensorFeedback)
     }
 
     private fun getDevice() = scannerInterface.scanner

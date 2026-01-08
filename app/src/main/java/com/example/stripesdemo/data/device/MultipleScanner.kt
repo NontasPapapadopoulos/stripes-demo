@@ -73,7 +73,6 @@ class MultipleScanner(
         casioScanner.enable()
         enabled.value = true
         fingerScanner.setEnabled(true)
-        connect
     }
 
     override fun disable() {

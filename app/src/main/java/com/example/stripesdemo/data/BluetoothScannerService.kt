@@ -1,6 +1,7 @@
 package com.example.stripesdemo.data
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Service
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
@@ -21,6 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@SuppressLint("MissingPermission")
 class BluetoothScannerService @Inject constructor(
     private val connect: Connect,
     @ApplicationContext val context: Context,
@@ -32,9 +34,10 @@ class BluetoothScannerService @Inject constructor(
     private var isAllowedToPair = false
 
 
+    @SuppressLint("MissingPermission")
     fun startScan(uuid: String) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+//            == PackageManager.PERMISSION_GRANTED) {
             isAllowedToPair = true
             try {
                 if (bluetoothLeScanner == null)
@@ -50,25 +53,25 @@ class BluetoothScannerService @Inject constructor(
                 }
             }
 
-        }
+//        }
     }
-
+    @SuppressLint("MissingPermission")
     fun stopScan() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+//            == PackageManager.PERMISSION_GRANTED) {
 
             isAllowedToPair = false
 //            bluetoothLeScanner.stopScan(scannerCallback)
             connect.disconnect()
 //            stopSelf()
 
-        }
+//        }
     }
 
     fun provideCommand(command: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             connect.setCommand(command)
-        }
+//        }
     }
 
     private fun getFilters(uuidService: String):  MutableList<ScanFilter> {

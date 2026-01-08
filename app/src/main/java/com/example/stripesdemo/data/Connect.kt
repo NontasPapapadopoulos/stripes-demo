@@ -30,6 +30,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@SuppressLint("MissingPermission")
 class Connect @Inject constructor(
     @ApplicationContext val context: Context,
 ) {
@@ -57,8 +58,8 @@ class Connect @Inject constructor(
 
 
     fun connect(address: String) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+//            == PackageManager.PERMISSION_GRANTED) {
 
             val device = bluetoothAdapter!!.getRemoteDevice(address)
 
@@ -67,13 +68,13 @@ class Connect @Inject constructor(
             else
                 bluetoothGatt = device.connectGatt(context, false, gattCallback)
 
-        }
+     //   }
 
     }
 
     fun disconnect() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+//            == PackageManager.PERMISSION_GRANTED) {
 
             bluetoothGatt?.apply {
                 disconnect()
@@ -81,14 +82,15 @@ class Connect @Inject constructor(
             }
             connectionState.value = ConnectionState.DISCONNECTED
 
-        }
+     //  }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
+    @SuppressLint("MissingPermission")
     fun setCommand(command: String) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            != PackageManager.PERMISSION_GRANTED
-        ) return
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+//            != PackageManager.PERMISSION_GRANTED
+//        ) return
 
         val gatt = bluetoothGatt ?: return
         val service = gatt.getService(serviceUUID) ?: return
@@ -96,13 +98,13 @@ class Connect @Inject constructor(
 
         val bytes = command.toByteArray()
 
-        val result = gatt.writeCharacteristic(
-            characteristic,
-            bytes,
-            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        )
+//        val result = gatt.writeCharacteristic(
+//            characteristic,
+//            bytes,
+//            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+//        )
 
-        Log.d("BLE", "Write result = $result")
+     //   Log.d("BLE", "Write result = $result")
 
     }
 

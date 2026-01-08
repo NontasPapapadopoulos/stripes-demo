@@ -103,8 +103,8 @@ private fun GscanConnectionContent(
         val context = LocalContext.current
 
         val requiredPermissions = listOf(
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT,
+//            Manifest.permission.BLUETOOTH_SCAN,
+//            Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
 
