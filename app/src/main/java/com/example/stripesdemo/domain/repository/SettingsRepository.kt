@@ -8,4 +8,5 @@ interface SettingsRepository {
     fun getSettingsFlow(): Flow<SettingsDomainEntity?>
     suspend fun getSettings(): SettingsDomainEntity?
     suspend fun initSettings()
+    suspend fun changeConnectionCode(code: String)
 }

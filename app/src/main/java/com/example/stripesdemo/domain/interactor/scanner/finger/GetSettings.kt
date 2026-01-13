@@ -5,16 +5,20 @@ import com.example.stripesdemo.domain.IoDispatcher
 import com.example.stripesdemo.domain.interactor.FlowUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-open class GetSettings @Inject constructor(
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
-): FlowUseCase<String, Unit>(dispatcher) {
-
-    override fun invoke(params: Unit): Flow<String> {
-        return  flowOf("@MENU_OPTO@ZZ@EBLE@W0@XP@T0@D3I@D3Q@DLA@Q2@BBP@0F@0F@0F@0F@ZZ@OTPO_UNEM@")
-        // Normally this comes from an API call
-    }
-}
+//open class GetSettings @Inject constructor(
+//    private val configurationsRepository: ConfigurationsRepository,
+//    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+//): FlowUseCase<String, Unit>(dispatcher) {
+//
+//    override fun invoke(params: Unit): Flow<String> {
+//        return flow { emit(projectRepository.getCurrentProject()) }.flatMapMerge { project ->
+//            configurationsRepository.getScanConfigurationFlow(project.id)
+//                .map { it?.fingerScannerConfiguration ?: "" }
+//        }
+//    }
+//}

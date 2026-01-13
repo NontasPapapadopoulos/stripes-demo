@@ -1,15 +1,18 @@
 package com.example.stripesdemo.presentation.navigation
 
 
+import AdvancedFingerScannerSettings
+import ConnectFingerScanner
 import FingerScannerSettings
-import GscanConnection
 import Scan
 import ScanList
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.stripesdemo.presentation.ui.screen.gscan.GscanConnectionScreen
+import com.example.stripesdemo.presentation.ui.screen.gscan.AdvancedSettingsScreen
+import com.example.stripesdemo.presentation.ui.screen.gscan.FingerScannerScreen
+import com.example.stripesdemo.presentation.ui.screen.gscan.connect.ConnectFingerScannerScreen
 import com.example.stripesdemo.presentation.ui.screen.scan.ScanScreen
 import com.example.stripesdemo.presentation.ui.screen.scanlist.ScanListScreen
 
@@ -28,7 +31,7 @@ fun MainNavGraph(
                     navController.navigate(ScanList)
                 },
                 navigateToFingerScanner = {
-                    navController.navigate(GscanConnection)
+                    navController.navigate(FingerScannerSettings)
                 }
             )
         }
@@ -40,16 +43,26 @@ fun MainNavGraph(
         }
 
 
-
-        composable<GscanConnection> {
-            GscanConnectionScreen(
-                onNavigateBack = { navController.popBackStack() }
+        composable<FingerScannerSettings> {
+            FingerScannerScreen(
+                navigateBack = { navController.popBackStack() },
+                navigateToPairFingerScanner = { navController.navigate(ConnectFingerScanner) },
+                navigateToAdvancedSettings = {}
             )
         }
 
-//        fingerScannerNavGraph(
-//            navController = navController,
-//        )
+        composable<ConnectFingerScanner> {
+            ConnectFingerScannerScreen(
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<AdvancedFingerScannerSettings> {
+            AdvancedSettingsScreen(
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+
 
     }
 

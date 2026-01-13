@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.example.stripesdemo.data.Connect
 import com.example.stripesdemo.domain.entity.enums.Scanner
 import com.example.stripesdemo.domain.repository.SettingsRepository
 import com.example.stripesdemo.domain.utils.throttleFirst
@@ -28,10 +27,9 @@ class MultipleScanner(
     val context: Context,
     settingsRepository: SettingsRepository,
     coroutineScope: CoroutineScope,
-    private val fingerScanner: FingerScanner,
+    private val fingerScanner: GeneralScanLibrary,
     private val mobileScanner: MobileScanner,
     private val casioScanner: CasioScanner,
-    private val connect: Connect
 ) : ScannerInterface {
 
 
@@ -43,14 +41,13 @@ class MultipleScanner(
 
 
     private val scansFlow = merge(
-//casioScanner.scansFlow
-//            .onEach { setScanner(Scanner.Regular) },
-        fingerScanner.inputFlow
+        casioScanner.scansFlow
+            .onEach { setScanner(Scanner.Regular) },
+        fingerScanner.scanValue
             .onEach { setScanner(Scanner.Finger) },
         mobileScanner.scanFlow
             .onEach { setScanner(Scanner.Camera) },
-        connect.scanFlow
-            .onEach { setScanner(Scanner.Finger) },
+
     )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())
@@ -72,15 +69,14 @@ class MultipleScanner(
     override fun enable() {
         casioScanner.enable()
         enabled.value = true
-        fingerScanner.setEnabled(true)
-        connect
+        fingerScanner.enable()
     }
 
     override fun disable() {
         casioScanner.disable()
         enabled.value = false
 
-        fingerScanner.setEnabled(false)
+        fingerScanner.disable()
     }
 
     override suspend fun performCameraScan() {

@@ -11,13 +11,12 @@ interface SettingsDataSource {
     fun getSettingsFlow(): Flow<SettingsDataEntity?>
     suspend fun getSettings(): SettingsDataEntity?
     suspend fun initSettings()
+    suspend fun changeConnectionCode(code: String)
 }
 
-class SettingsDatabaseDataSource @Inject constructor(
+class SettingsLocalDataSource @Inject constructor(
     private val scannerSettingsDao: ScannerSettingsDao,
 ) : SettingsDataSource {
-
-
 
     override fun getSettingsFlow(): Flow<SettingsDataEntity?> {
         return scannerSettingsDao.getSettingsFlow()
@@ -31,11 +30,16 @@ class SettingsDatabaseDataSource @Inject constructor(
         val settings = SettingsDataEntity(
             scansDelay = 200L,
             feedbackDelay = 200L,
-            connectionUUID = getNewAdUuid()
+            connectionCode = getNewAdUuid()
         )
 
         scannerSettingsDao.put(settings)
     }
+
+    override suspend fun changeConnectionCode(code: String) {
+        scannerSettingsDao.changeConnectionCode(code)
+    }
+
 
     private fun getNewAdUuid(): String {
         val randomNumStr = ((0..0xffff).random()).toString(16).padStart(4,'0').uppercase()

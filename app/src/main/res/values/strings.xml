@@ -23,4 +23,7 @@
     <string name="connecting">Connecting...</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="pick_list_mode">Picklist Mode</string>
+    <string name="vibration">Vibration</string>
 </resources>

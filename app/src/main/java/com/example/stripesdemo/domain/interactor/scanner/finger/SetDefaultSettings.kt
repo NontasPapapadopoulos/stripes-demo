@@ -6,15 +6,14 @@ import com.example.stripesdemo.domain.repository.ScannerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 
-open class SetVolume @Inject constructor(
+open class SetDefaultSettings @Inject constructor(
     private val scannerRepository: ScannerRepository,
     @IoDispatcher private val flowDispatcher: CoroutineDispatcher,
-) : SuspendUseCase<Unit, SetVolume.Params>(flowDispatcher) {
+) : SuspendUseCase<Unit, Unit>(flowDispatcher) {
 
-    override suspend fun invoke(params: Params) {
-        scannerRepository.setVolumeLevel(params.level)
+    override suspend fun invoke(params: Unit) {
+        scannerRepository.setDefaultSettings()
 
     }
 
-    data class Params(val level: Int)
 }

@@ -258,7 +258,7 @@ private fun ScanScreenPreview() {
             isSubmitEnabled = true,
             numberOfScans = 3,
             connectionState = ConnectionState.CONNECTING,
-            isScannerEnabled = true
+            isScannerEnabled = true,
         ),
         onNavigateToScanList = {},
         triggerCameraScan = {},

@@ -16,7 +16,7 @@ open class GetConnectionUUID @Inject constructor(
 
     override fun invoke(params: Unit): Flow<String> {
         return  flow {
-            val uuid = settingsRepository.getSettings()!!.connectionUUID
+            val uuid = settingsRepository.getSettings()!!.connectionCode
             bluetoothScanner.startScan(uuid)
             emit("{G6000/${uuid}}")
         }

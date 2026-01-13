@@ -20,4 +20,7 @@ interface ScannerSettingsDao {
     @Insert
     suspend fun put(settings: SettingsDataEntity)
 
+
+    @Query("UPDATE settings set connectionCode = :code")
+    suspend fun changeConnectionCode(code: String)
 }

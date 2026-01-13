@@ -4,7 +4,7 @@ package com.example.stripesdemo.domain.entity
 data class SettingsDomainEntity(
     val scansDelay: Long,
     val feedbackDelay: Long,
-    val connectionUUID: String
+    val connectionCode: String
 
 )
 

@@ -15,7 +15,7 @@ open class InitBluetoothScanner @Inject constructor(
 
     override suspend fun invoke(params: Unit) {
         val uuid = settingsRepository.getSettings()!!
-            .connectionUUID
+            .connectionCode
         bluetoothScanner.startScan(uuid)
     }
 

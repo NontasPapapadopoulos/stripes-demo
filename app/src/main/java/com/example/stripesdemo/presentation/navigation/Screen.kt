@@ -8,19 +8,16 @@ object Scan
 object ScanList
 
 
-@Serializable
-object FingerScannerRoute
 
 @Serializable
 object FingerScannerSettings
 
 @Serializable
-object ConfigureFingerScanner
+object AdvancedFingerScannerSettings
 
 @Serializable
 object ConnectFingerScanner
 
 
 
-@Serializable
-object GscanConnection
+

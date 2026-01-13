@@ -7,12 +7,12 @@ import com.example.stripesdemo.domain.entity.SettingsDomainEntity
 fun SettingsDataEntity.toDomain() = SettingsDomainEntity(
     scansDelay = scansDelay,
     feedbackDelay = feedbackDelay,
-    connectionUUID = connectionUUID
+    connectionCode = connectionCode
 )
 
 
 fun SettingsDomainEntity.toData() = SettingsDataEntity(
     scansDelay = scansDelay,
     feedbackDelay = feedbackDelay,
-    connectionUUID = connectionUUID
+    connectionCode = connectionCode
 )

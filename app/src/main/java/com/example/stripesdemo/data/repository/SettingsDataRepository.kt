@@ -26,5 +26,9 @@ class SettingsDataRepository @Inject constructor(
             settingsDataSource.initSettings()
     }
 
+    override suspend fun changeConnectionCode(code: String) {
+        settingsDataSource.changeConnectionCode(code)
+    }
+
 
 }

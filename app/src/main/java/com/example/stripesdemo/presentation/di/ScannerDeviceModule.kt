@@ -1,10 +1,10 @@
 package com.example.stripesdemo.presentation.di
 
 import android.content.Context
-import com.example.stripesdemo.data.Connect
 import com.example.stripesdemo.data.device.CasioScanner
 import com.example.stripesdemo.data.device.MultipleScanner
 import com.example.stripesdemo.data.device.FingerScanner
+import com.example.stripesdemo.data.device.GeneralScanLibrary
 import com.example.stripesdemo.data.device.MobileScanner
 import com.example.stripesdemo.data.device.ScannerInterface
 import com.example.stripesdemo.domain.repository.SettingsRepository
@@ -27,10 +27,9 @@ object ScannerDeviceModule {
         @ApplicationContext context: Context,
         settingsRepository: SettingsRepository,
         coroutineScope: CoroutineScope,
-        fingerScanner: FingerScanner,
+        fingerScanner: GeneralScanLibrary,
         mobileScanner: MobileScanner,
         casioScanner: CasioScanner,
-        connect: Connect
     ): ScannerInterface {
          return  MultipleScanner(
             context,
@@ -39,7 +38,6 @@ object ScannerDeviceModule {
             fingerScanner,
              mobileScanner,
              casioScanner,
-             connect
         )
     }
 

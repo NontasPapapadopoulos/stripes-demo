@@ -21,7 +21,6 @@ import com.example.stripesdemo.domain.interactor.scanner.SendSensorFeedback
 import com.example.stripesdemo.domain.interactor.scanner.SetScannerEnabled
 import com.example.stripesdemo.domain.interactor.scanner.TriggerCameraScan
 import com.example.stripesdemo.domain.interactor.scanner.finger.Disconnect
-import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectedDevices
 import com.example.stripesdemo.domain.interactor.scanner.finger.GetConnectionState
 import com.example.stripesdemo.domain.utils.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,8 +39,7 @@ class ScanViewModel @Inject constructor(
     private val initOpenScan: InitOpenScan,
     private val triggerCameraScan: TriggerCameraScan,
     private val submitScan: SubmitScan,
-    getConnectedDevices: GetConnectedDevices,
-    getConnectionStatus: GetConnectionState,
+    private val getConnectionStatus: GetConnectionState,
     getNumberOfScans: GetNumberOfScans,
     private val sendSensorFeedback: SendSensorFeedback,
     private val getScannerStatus: GetScannerStatus,
@@ -68,7 +66,7 @@ class ScanViewModel @Inject constructor(
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
-    private val fingerScannerConnectionFlow = getConnectionStatus.execute(Unit)
+    private val connectionStateFlow = getConnectionStatus.execute(Unit)
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
@@ -86,7 +84,7 @@ class ScanViewModel @Inject constructor(
         ),
         countFlow.onStart { emit("") },
         numberOfScansFlow,
-        fingerScannerConnectionFlow.onStart { emit(ConnectionState.DISCONNECTED) },
+        connectionStateFlow.onStart { emit(ConnectionState.DISCONNECTED) },
         scannerStatusFlow.onStart { emit(false) }
     ) { openScan, barcode, count, numberOfScans, isFingerScannerConnected, isScannerEnabled ->
 

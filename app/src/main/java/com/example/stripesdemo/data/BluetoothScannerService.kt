@@ -1,6 +1,6 @@
 package com.example.stripesdemo.data
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Service
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
@@ -9,67 +9,69 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.IBinder
 import android.os.ParcelUuid
 import android.util.Log
-import androidx.core.app.ActivityCompat
+import com.example.stripesdemo.data.device.GeneralScanLibrary
+import com.example.stripesdemo.data.device.GeneralScanUtils.TAG
 import com.example.stripesdemo.data.exception.BluetoothIsOffException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@SuppressLint("MissingPermission")
 class BluetoothScannerService @Inject constructor(
-    private val connect: Connect,
+    private val generalScanLibrary: GeneralScanLibrary,
     @ApplicationContext val context: Context,
 ): Service() {
 
-    val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    val bluetoothManager = context.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-    private var isAllowedToPair = false
+    private val scanPeriod: Long = 15_000
 
-
-    fun startScan(uuid: String) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
-            isAllowedToPair = true
-            try {
-                if (bluetoothLeScanner == null)
-                    bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-                bluetoothLeScanner.startScan(
-                    getFilters(uuid),
-                    getScanSettings(),
-                    scannerCallback
-                )
-            } catch (e: Exception) {
-                if (e.message == "BT Adapter is not turned ON") {
-                    throw BluetoothIsOffException()
-                }
+    suspend fun startScan(uuid: String) {
+        initBluetoothScanner()
+        try {
+            withTimeout(scanPeriod) {
+                startBluetoothScanner(uuid)
+                awaitCancellation()
             }
-
+        }
+        catch (_: TimeoutCancellationException) {
+            stopScan()
+        }
+        catch (e: Exception) {
+            if (e.message == "BT Adapter is not turned ON") {
+                throw BluetoothIsOffException()
+            }
         }
     }
+
+    private fun initBluetoothScanner() {
+        if (bluetoothLeScanner == null)
+            bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
+    }
+
+    private fun startBluetoothScanner(uuid: String) {
+        Log.d(TAG, "Start scanning....")
+        bluetoothLeScanner.startScan(
+            getFilters(uuid),
+            getScanSettings(),
+            scannerCallback
+        )
+    }
+
 
     fun stopScan() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
-            == PackageManager.PERMISSION_GRANTED) {
-
-            isAllowedToPair = false
-//            bluetoothLeScanner.stopScan(scannerCallback)
-            connect.disconnect()
-//            stopSelf()
-
-        }
+        Log.d(TAG, "Stop scanning....")
+        bluetoothLeScanner.stopScan(scannerCallback)
     }
 
-    fun provideCommand(command: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            connect.setCommand(command)
-        }
-    }
 
     private fun getFilters(uuidService: String):  MutableList<ScanFilter> {
         val filter = ScanFilter.Builder()
@@ -91,9 +93,8 @@ class BluetoothScannerService @Inject constructor(
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
             val scanRecord = result.scanRecord!!.bytes
-
-            if (isAllowedToPair)
-                connect.connect(device.address)
+            Log.d(TAG, "Connecting...")
+            generalScanLibrary.connect(device.address)
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {
