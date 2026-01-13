@@ -48,8 +48,6 @@ class ScannerDataRepository @Inject constructor(
         }
     }
 
-
-
     override suspend fun sendFeedback(sensorFeedback: SensorFeedback) {
         if (getDevice() == Scanner.Regular)
             sensorFeedbackManager.sendFeedback(sensorFeedback)
@@ -121,7 +119,7 @@ class ScannerDataRepository @Inject constructor(
         return when (device) {
             Scanner.Regular -> ScanSource.RegularScanner
             Scanner.Finger -> ScanSource.FingerScanner
-            Scanner.Camera -> ScanSource.Camera
+           // Scanner.Camera -> ScanSource.Camera
         }
     }
 
@@ -151,8 +149,6 @@ class ScannerDataRepository @Inject constructor(
         scannerLocalDataSource.setDefaultSettings()
     }
 
-    override suspend fun performCameraScan() {
-        scannerInterface.performCameraScan()
-    }
+
 
 }

@@ -44,5 +44,4 @@ interface ScannerRepository {
 
     fun setDefaultSettings()
 
-    suspend fun performCameraScan()
 }

@@ -80,7 +80,7 @@ fun ScanScreen(
                 state = state,
                 onNavigateToScanList = navigateToScanList,
                 onNavigateToFingerScanner = navigateToFingerScanner,
-                triggerCameraScan = { viewModel.add(ScanEvent.TriggerCameraScan) },
+                triggerCameraScan = { /*viewModel.add(ScanEvent.TriggerCameraScan)*/ },
                 onCountChanged = { viewModel.add(ScanEvent.CountChanged(it)) },
                 onBarcodeChanged = { viewModel.add(ScanEvent.BarcodeChanged(it)) },
                 submitScan = { viewModel.add(ScanEvent.SubmitScan) },
@@ -146,13 +146,13 @@ private fun ScanContent(
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = triggerCameraScan,
-            ) {
-                Icon(StripesIcons.Barcode,null)
-            }
-        }
+//        floatingActionButton = {
+//            FloatingActionButton(
+//                onClick = triggerCameraScan,
+//            ) {
+//                Icon(StripesIcons.Barcode,null)
+//            }
+//        }
     ) {
         Column(
             modifier = Modifier.fillMaxSize()

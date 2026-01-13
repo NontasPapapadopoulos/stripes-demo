@@ -84,8 +84,8 @@ class GeneralScanLibrary @Inject constructor(
     private val _macAddress = MutableStateFlow<String>("")
     val macAddress = _macAddress.asStateFlow()
 
-    private val scanChannel = Channel<String?>(Channel.BUFFERED)
-    val scanFlow: Flow<String?> = scanChannel.receiveAsFlow()
+//    private val scanChannel = Channel<String?>(Channel.BUFFERED)
+//    val scanFlow: Flow<String?> = scanChannel.receiveAsFlow()
 
     private val commandQueue = mutableSetOf<String>()
     @Volatile private var writeInProgress = false

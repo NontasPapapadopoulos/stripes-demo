@@ -50,7 +50,6 @@ import com.example.stripesdemo.presentation.ui.composables.BackButton
 import com.example.stripesdemo.presentation.ui.screen.gscan.connect.ConnectFingerScannerConstants.Companion.BACK_BUTTON_TAG
 import com.example.stripesdemo.presentation.ui.theme.contentSize5
 import com.example.stripesdemo.presentation.ui.theme.contentSpacing2
-import com.example.stripesdemo.presentation.ui.theme.contentSpacing4
 import com.example.stripesdemo.presentation.ui.theme.contentSpacing6
 import com.example.stripesdemo.presentation.ui.theme.contentSpacing8
 import com.example.stripesdemo.presentation.utils.createQrCode
@@ -75,9 +74,6 @@ fun ConnectFingerScannerScreen(
     }
 
 
-
-
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val state = uiState) {
@@ -97,8 +93,8 @@ fun ConnectFingerScannerScreen(
                 },
                 complete = {
                     viewModel.add(ConnectFingerScannerEvent.SetDefaultSettings)
-                    viewModel.add(ConnectFingerScannerEvent.Complete)
-                           },
+                    navigateBack()
+                },
             )
         }
 
@@ -127,8 +123,7 @@ private fun ConnectFingerScannerContent(
                         BackButton(
                             navigateBack = navigateBack,
                             modifier = Modifier.testTag(BACK_BUTTON_TAG)
-                        )
-                                     },
+                        ) },
                 )
 
             }

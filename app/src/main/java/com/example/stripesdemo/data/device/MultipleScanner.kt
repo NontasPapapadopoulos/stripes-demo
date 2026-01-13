@@ -28,8 +28,6 @@ class MultipleScanner(
     settingsRepository: SettingsRepository,
     coroutineScope: CoroutineScope,
     private val fingerScanner: GeneralScanLibrary,
-    private val mobileScanner: MobileScanner,
-    private val casioScanner: CasioScanner,
 ) : ScannerInterface {
 
 
@@ -41,48 +39,39 @@ class MultipleScanner(
 
 
     private val scansFlow = merge(
-        casioScanner.scansFlow
-            .onEach { setScanner(Scanner.Regular) },
         fingerScanner.scanValue
             .onEach { setScanner(Scanner.Finger) },
-        mobileScanner.scanFlow
-            .onEach { setScanner(Scanner.Camera) },
-
-    )
+        )
         .filterNotNull()
         .shareIn(coroutineScope, SharingStarted.WhileSubscribed())
 
 
     @ExperimentalCoroutinesApi
     override val values = settingsRepository.getSettingsFlow().flatMapLatest { settings ->
-        scansFlow.throttleFirst(settings?.scansDelay ?: 200L)
+        scansFlow.throttleFirst(settings?.scansDelay ?: 20L)
     }
 
     override suspend fun initialize(disabledByDefault: Boolean) {
-        casioScanner.initialize(disabledByDefault)
+        //casioScanner.initialize(disabledByDefault)
     }
 
     override suspend fun cleanup() {
-        casioScanner.close()
+      //  casioScanner.close()
     }
 
     override fun enable() {
-        casioScanner.enable()
+     //   casioScanner.enable()
         enabled.value = true
         fingerScanner.enable()
     }
 
     override fun disable() {
-        casioScanner.disable()
+     //   casioScanner.disable()
         enabled.value = false
 
         fingerScanner.disable()
     }
 
-    override suspend fun performCameraScan() {
-        if (enabled.value)
-            mobileScanner.scan()
-    }
 
     private fun setScanner(scanner: Scanner) {
         _scanner = scanner

@@ -12,7 +12,7 @@ open class TriggerCameraScan @Inject constructor(
 ) : SuspendUseCase<Unit, Unit>(flowDispatcher) {
 
     override suspend fun invoke(params: Unit) {
-        scannerRepository.performCameraScan()
+       // scannerRepository.performCameraScan()
     }
 
 }

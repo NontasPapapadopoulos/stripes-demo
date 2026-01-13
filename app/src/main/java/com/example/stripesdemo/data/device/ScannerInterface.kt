@@ -15,5 +15,4 @@ interface ScannerInterface {
     fun enable()
     fun disable()
 
-    suspend fun performCameraScan()
 }
