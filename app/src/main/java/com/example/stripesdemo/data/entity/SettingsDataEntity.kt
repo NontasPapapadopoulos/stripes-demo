@@ -10,6 +10,7 @@ data class SettingsDataEntity(
     @PrimaryKey(autoGenerate = false)
     val dummyPrimaryKey: Int = 0,
     val scansDelay: Long,
-    @ColumnInfo(defaultValue = "200") val feedbackDelay: Long,
+    @ColumnInfo(defaultValue = "200")
+    val feedbackDelay: Long,
     val connectionCode: String,
 )

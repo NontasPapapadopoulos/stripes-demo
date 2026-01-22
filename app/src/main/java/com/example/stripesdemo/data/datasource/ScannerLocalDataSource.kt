@@ -25,7 +25,7 @@ interface ScannerLocalDataSource {
     fun setVolume(volume: Int)
     fun setVibration(vibration: Int)
     fun getMacAddress(): Flow<String>
-    fun sendFeedback(sensorFeedback: SensorFeedback)
+    suspend fun sendFeedback(sensorFeedback: SensorFeedback)
     fun setDefaultSettings()
 }
 
@@ -77,7 +77,7 @@ class ScannerLocalDataSourceImpl @Inject constructor(
         generalScanLibrary.addCommand(SET_VIBRATION_LEVEL_COMMAND.setValue("$vibration"))
     }
 
-    override fun sendFeedback(sensorFeedback: SensorFeedback) {
+    override suspend fun sendFeedback(sensorFeedback: SensorFeedback) {
         return generalScanLibrary.sendFeedback(sensorFeedback)
     }
 

@@ -10,6 +10,8 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.example.stripesdemo.data.device.GeneralScanUtils.ALERT_SOUND
 import com.example.stripesdemo.data.device.GeneralScanUtils.ENABLE_DECODING_PROMPT_TONE
@@ -39,6 +41,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,6 +94,21 @@ class GeneralScanLibrary @Inject constructor(
     @Volatile private var writeInProgress = false
 
     private var enable = false
+
+    val scannerInputBuilder = StringBuilder()
+
+    private val handler =
+        Handler(Looper.getMainLooper()) // Use main looper if handleScannerInput involves UI updates; otherwise, use Handler()
+    private val processInputRunnable = Runnable {
+        val result = scannerInputBuilder.toString().trim()
+        scannerInputBuilder.setLength(0)
+        lastReceivedValue = null
+        lastReceivedTimestamp = 0L
+        if (result.isNotEmpty()) {
+            handleScannerInput(result)
+        }
+    }
+
 
     fun connect(address: String) {
         val device = bluetoothAdapter!!.getRemoteDevice(address)
@@ -154,6 +172,8 @@ class GeneralScanLibrary @Inject constructor(
             gatt.writeCharacteristic(characteristic)
         }
 
+        Log.d(TAG, "Command $command executed!")
+
     }
 
     @SuppressLint("MissingPermission")
@@ -171,21 +191,10 @@ class GeneralScanLibrary @Inject constructor(
                 initMacAddress(address)
                 onConnected()
 
-//                gatt.requestMtu(512)
+                gatt.requestMtu(247)
             }
 
             updateState(newState)
-        }
-
-        private fun onConnected() {
-            writeInProgress = false
-            commandQueue.clear()
-        }
-
-        private fun initMacAddress(address: String) {
-            scope.launch {
-                _macAddress.emit(address)
-            }
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
@@ -225,13 +234,13 @@ class GeneralScanLibrary @Inject constructor(
 
         }
 
+
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic,
             value: ByteArray
         ) {
-            val result = value.toString(Charsets.US_ASCII).trim()
-            handleScannerInput(result)
+            extractCompleteInput(value)
         }
 
         // Required for android 10, Casio Device
@@ -239,8 +248,7 @@ class GeneralScanLibrary @Inject constructor(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
-            val result = characteristic.value.toString(Charsets.US_ASCII).trim()
-            handleScannerInput(result)
+            extractCompleteInput(characteristic.value)
         }
 
 
@@ -254,6 +262,64 @@ class GeneralScanLibrary @Inject constructor(
             processNextCommand()
         }
 
+    }
+
+    private fun onConnected() {
+        writeInProgress = false
+        commandQueue.clear()
+    }
+
+    private fun initMacAddress(address: String) {
+        scope.launch {
+            _macAddress.emit(address)
+        }
+    }
+
+    private var lastReceivedValue: ByteArray? = null
+    private var lastReceivedTimestamp: Long = 0L
+
+    private fun extractCompleteInput(value: ByteArray) {
+        val now = System.currentTimeMillis()
+        if (lastReceivedValue?.contentEquals(value) == true && (now - lastReceivedTimestamp) < 100) {
+            return
+        }
+        lastReceivedValue = value
+        lastReceivedTimestamp = now
+
+        val str = value.toString(Charsets.US_ASCII)
+        scannerInputBuilder.append(str)
+
+        // If the scanner sends terminators like \r or \n, we can split and process immediately
+        val currentContent = scannerInputBuilder.toString()
+        if (currentContent.contains("\r") || currentContent.contains("\n")) {
+            val lastNewLineIndex = maxOf(currentContent.lastIndexOf('\r'), currentContent.lastIndexOf('\n'))
+
+            // Extract everything up to (and including) the last terminator
+            val toProcess = currentContent.substring(0, lastNewLineIndex + 1)
+            // Keep any trailing characters that might be the start of the next barcode
+            val remainder = currentContent.substring(lastNewLineIndex + 1)
+
+            scannerInputBuilder.setLength(0)
+            scannerInputBuilder.append(remainder)
+
+            // Split by common terminators and filter out empty strings
+            val parts = toProcess.split(Regex("[\r\n]+")).filter { it.isNotBlank() }
+
+            parts.forEach { barcode ->
+                handleScannerInput(barcode.trim())
+            }
+
+            // If we processed everything and no remainder, we can stop the timer
+            if (remainder.isEmpty()) {
+                handler.removeCallbacks(processInputRunnable)
+                lastReceivedValue = null
+                lastReceivedTimestamp = 0L
+                return
+            }
+        }
+
+        handler.removeCallbacks(processInputRunnable)
+        handler.postDelayed(processInputRunnable, 150) // Reduced from 200ms to 150ms for faster response
     }
 
     private fun handleScannerInput(
@@ -302,14 +368,14 @@ class GeneralScanLibrary @Inject constructor(
     }
 
     private fun handleBarcode(barcode: String) {
-        Log.d(TAG, "onCharacteristicChanged -> Barcode: $barcode")
-     //   if (enable) {
+//        Log.d(TAG, "onCharacteristicChanged -> Barcode: $barcode")
+        //   if (enable) {
 
         scope.launch {
             _scanValue.emit(barcode)
 //            scanChannel.send(barcode)
         }
-      //  }
+        //  }
     }
 
     private fun onDisconnect() {
@@ -357,12 +423,12 @@ class GeneralScanLibrary @Inject constructor(
         }
     }
 
-   fun observeVibration(): Flow<String> = flow {
-       if (isConnected()) {
-           emit(vibrationLevel.first())
-           addCommand(GET_VIBRATION_LEVEL_COMMAND)
-           emitAll(vibrationLevel.drop(1))
-       }
+    fun observeVibration(): Flow<String> = flow {
+        if (isConnected()) {
+            emit(vibrationLevel.first())
+            addCommand(GET_VIBRATION_LEVEL_COMMAND)
+            emitAll(vibrationLevel.drop(1))
+        }
     }
 
 
@@ -371,32 +437,39 @@ class GeneralScanLibrary @Inject constructor(
     }
 
 
-    fun sendFeedback(sensorFeedback: SensorFeedback) {
+    suspend fun sendFeedback(sensorFeedback: SensorFeedback) {
+        commandQueue.clear()
+        writeInProgress = false
+        val duration = 400L
+
         when (sensorFeedback) {
             SensorFeedback.SUCCESS -> {
                 addCommand(SUCCESS_SOUND)
-            //    addCommand(VIBRATE_SUCCESS)
             }
             SensorFeedback.ERROR -> {
-                addCommand(SUCCESS_SOUND)
+                addCommand(RATTLE_SOUND)
+                delay(duration)
                 addCommand(VIBRATE_ERROR)
             }
             SensorFeedback.ERROR_NO_VIBRATION -> {
                 addCommand(RATTLE_SOUND)
             }
             SensorFeedback.WARNING -> {
-                addCommand(VIBRATE_WARNING)
                 addCommand(NOTIFICATION_SOUND)
+                delay(duration)
+                addCommand(VIBRATE_WARNING)
             }
             SensorFeedback.WARNING_NO_VIBRATION -> {
                 addCommand(NOTIFICATION_SOUND)
             }
             SensorFeedback.NOTIFICATION -> {
                 addCommand(NOTIFICATION_SOUND)
+                delay(duration)
                 addCommand(VIBRATE_WARNING)
             }
             SensorFeedback.SYNC_ERROR -> {
                 addCommand(ALERT_SOUND)
+                delay(duration)
                 addCommand(VIBRATE_ERROR)
             }
             else -> {}
