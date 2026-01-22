@@ -47,9 +47,7 @@ class MultipleScanner(
 
 
     @ExperimentalCoroutinesApi
-    override val values = settingsRepository.getSettingsFlow().flatMapLatest { settings ->
-        scansFlow.throttleFirst(settings?.scansDelay ?: 20L)
-    }
+    override val values = scansFlow.throttleFirst(300L)
 
     override suspend fun initialize(disabledByDefault: Boolean) {
         //casioScanner.initialize(disabledByDefault)
